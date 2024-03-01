@@ -15,30 +15,29 @@ const gameSchema = new mongoose.Schema({
     pgn: {
         type: String,
         default: ""
+    },
+    fen: {
+        type: String,
+        default: ""
+    },
+    white: {
+        type: String,
+        default: "",
+        required: true
+    },
+    black: {
+        type: String,
+        default: "",
+    },
+    whiteAssist: {
+        type: String,
+        default: "",
     }
+
     
 });
 
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true
-    },
-    color: {
-        type: String,
-        enum: ["white", "black"],
-        required: true
-    },
-    secondPlayer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    game: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Game"
-    }
-});
+const Game = mongoose.model("Game", gameSchema);
 
-const User = mongoose.model("User", userSchema);
 
-export default User;
+export default Game;
