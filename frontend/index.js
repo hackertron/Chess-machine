@@ -1,32 +1,47 @@
-import { Chess } from "chess.js";
+function setLocalStorage(key, data) {
+    localStorage.setItem(key, data);
+}
 
-const board = document.getElementById("chessful-board");
-const game = new Chess();
+async function createGame() {
+let gameCode = document.getElementById("gameCode").value;
+console.log("gameCode : ", gameCode);
+try {
+    const response = await fetch('http://localhost:3000/api/game/create', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            gameCode: gameCode
+        })
+    });
 
-board.addEventListener("movestart", (e) => {
-  console.log(
-    `Move started: ${e.detail.from}, ${e.detail.piece.color} ${e.detail.piece.pieceType}`
-  );
-  e.detail.setTargets(
-    // This produces a list like ["e3", "e5"]
-    game.moves({ square: e.detail.from, verbose: true }).map((m) => m.to)
-  );
-});
+    if (!response.ok) {
+        throw new Error('Failed to create game');
+    }
 
-board.addEventListener("moveend", (e) => {
-  console.log(
-    `Move ending: ${e.detail.from} -> ${e.detail.to}, ${e.detail.piece.color} ${e.detail.piece.pieceType}`
-  );
-  const move = game.move({
-    from: e.detail.from,
-    to: e.detail.to
-  });
-  if (move === null) {
-    e.preventDefault();
-  }
-});
+    const data = await response.json();
+    console.log('Success:', data);
+    setLocalStorage("game_obj", JSON.stringify(data));
+    window.location.href = "game.html";
+} catch (error) {
+    console.error('Error:', error);
+}
+}    // handle clicks
+document.getElementById("start").addEventListener("click", () => {
+    let result =  createGame();
+    console.log("result : ", result);
+    // redirect to game.html
+    //window.location.href = "/game.html?gameCode=" + document.getElementById("gameCode").value
+    // window.location.href = "game.html"
+})
+document.getElementById("joinBlack").addEventListener("click", () => {
 
-board.addEventListener("movefinished", (e) => {
-  board.fen = game.fen();
-  board.turn = game.turn() === "w" ? "white" : "black";
-});
+    //window.location.href = "game.html?gameCode=" + document.getElementById("gameCode").value + "&color=black"
+    window.location.href = "black.html"
+})
+document.getElementById("joinWhite").addEventListener("click", () => {
+    //window.location.href = "game.html?gameCode=" + document.getElementById("gameCode").value + "&color=white"
+    window.location.href = "white.html"
+})
