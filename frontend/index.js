@@ -2,6 +2,32 @@ function setLocalStorage(key, data) {
     localStorage.setItem(key, data);
 }
 
+async function contineuGame(gamecode, playerID) {
+    console.log("gamecode : ", gamecode);
+    console.log("playerID : ", playerID);
+    try {
+        const response = await fetch('http://localhost:3000/api/game/continue', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                gameCode: gamecode,
+                playerID: playerID
+            })
+        });
+        if (!response.ok) {
+            throw new Error('Failed to continue game');
+        }
+        const data = await response.json();
+        console.log('Success:', data);
+        setLocalStorage("game_obj", JSON.stringify(data));
+}
+    catch (error) {
+        console.error('Error:', error);
+    }
+}
 
 async function joinGame(gameCode, color) {
     console.log("color : ", color);
@@ -69,4 +95,9 @@ document.getElementById("joinBlack").addEventListener("click", () => {
 })
 document.getElementById("joinWhite").addEventListener("click", () => {
     joinGame(document.getElementById("gameCode").value, "white")
+})
+
+
+document.getElementById("continueGame").addEventListener("click", () => {
+    console.log("continue game, need gameID and playerID");  
 })

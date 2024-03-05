@@ -65,3 +65,20 @@ export const joinGame = async (req, res) => {
       res.status(404).json({ message: error.message });
     }
    };
+
+export const updatedGame = async (req, res) => {
+    const game = req.body;
+    const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
+    res.status(200).json(updatedGame);
+}
+
+
+// complete this function
+export const gameUpdates = async(req, res) => {
+    return res.status(200).json({message: "success"});
+}
+
+// complete this function
+export const continueGame = async(req, res) => {
+    return res.status(200).json({message: "success"});
+}
