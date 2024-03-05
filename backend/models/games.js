@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const gameSchema = new mongoose.Schema({
     gamecode: {
         type: String,
+        unique: true,
         required: true
     },
     gamestatus: {
@@ -23,15 +24,18 @@ const gameSchema = new mongoose.Schema({
     white: {
         type: String,
         default: "",
-        required: true
+        required: true,
+        color: "white"
     },
     black: {
         type: String,
         default: "",
+        color: "black"
     },
     whiteAssist: {
         type: String,
         default: "",
+        color: "whiteAssist"
     }
 
     
