@@ -80,5 +80,21 @@ export const gameUpdates = async(req, res) => {
 
 // complete this function
 export const continueGame = async(req, res) => {
-    return res.status(200).json({message: "success"});
+    // get playerID and gamecode fromr req.body
+    const playerID = req.body.playerID;
+    const gamecode = req.body.gameCode;
+    console.log("playerID : ", playerID);
+    console.log("gamecode : ", gamecode);
+    // check if playerID and gamecode are in same game
+    const game = await Game.findOne({gamecode: gamecode});
+    console.log("game : ", game);
+    if (!game) {
+        return res.status(404).json({message: "Game not found"});
+    }
+    if (game.black !== playerID && game.whiteAssist !== playerID && game.white !== playerID) {
+        return res.status(404).json({message: "Player not in game"});
+    }
+    // return the game object
+    return res.status(200).json(game);
+
 }

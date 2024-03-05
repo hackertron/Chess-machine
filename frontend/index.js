@@ -2,8 +2,8 @@ function setLocalStorage(key, data) {
     localStorage.setItem(key, data);
 }
 
-async function contineuGame(gamecode, playerID) {
-    console.log("gamecode : ", gamecode);
+async function contineuGame(continueGameCode, playerID) {
+    console.log("continueGameCode : ", continueGameCode);
     console.log("playerID : ", playerID);
     try {
         const response = await fetch('http://localhost:3000/api/game/continue', {
@@ -13,7 +13,7 @@ async function contineuGame(gamecode, playerID) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                gameCode: gamecode,
+                gameCode: continueGameCode,
                 playerID: playerID
             })
         });
@@ -23,6 +23,15 @@ async function contineuGame(gamecode, playerID) {
         const data = await response.json();
         console.log('Success:', data);
         setLocalStorage("game_obj", JSON.stringify(data));
+
+        // check where to redirect based on playerID
+        if (data.black === playerID) {
+            window.location.href = "black.html";
+        } else if (data.whiteAssist === playerID) {
+            window.location.href = "white.html";
+        } else if (data.white === playerID) {
+            window.location.href = "white.html";
+        }
 }
     catch (error) {
         console.error('Error:', error);
@@ -99,5 +108,6 @@ document.getElementById("joinWhite").addEventListener("click", () => {
 
 
 document.getElementById("continueGame").addEventListener("click", () => {
-    console.log("continue game, need gameID and playerID");  
+    console.log("continue game, need gameID and playerID");
+    contineuGame(document.getElementById("continueGameCode").value, document.getElementById("playerID").value)
 })
