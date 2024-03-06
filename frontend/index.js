@@ -59,6 +59,7 @@ async function joinGame(gameCode, color) {
         const data = await response.json();
         console.log('Success:', data);
         setLocalStorage("game_obj", JSON.stringify(data));
+        setLocalStorage("gamecode", gameCode);
         window.location.href = color + ".html";
     } catch (error) {
         console.error('Error:', error);

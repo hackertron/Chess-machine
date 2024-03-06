@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
 
 const game = new Chess()
-var board = null
-var $status = $('#status')
-var $fen = $('#fen')
-var $pgn = $('#pgn')
+let board = null
+let $status = $('#status')
+let $fen = $('#fen')
+let $pgn = $('#pgn')
 
 
 async function submitMove () {
@@ -54,7 +54,7 @@ function onDrop (source, target) {
   console.log("drag stopped");
   console.log("game obj : ", game);
   // see if the move is legal
-  var move = game.move({
+  let move = game.move({
     from: source,
     to: target,
     promotion: 'q' // NOTE: always promote to a queen for example simplicity
@@ -74,9 +74,9 @@ function onSnapEnd () {
 }
 
 function updateStatus () {
-  var status = ''
+  let status = ''
 
-  var moveColor = 'White'
+  let moveColor = 'White'
   if (game.turn() === 'b') {
     moveColor = 'Black'
   }
@@ -143,12 +143,21 @@ document.getElementById("submitMove").addEventListener("click", () => {
   submitMove();
 })
 
-const eventSource = new EventSource('http://localhost:3000/api/game/gameupdatestream');
 
+function updateGamePage(game_obj) {
+  game.load(game_obj.fen);
+  board.destroy();
+  board = Chessboard('myBoard', create_config(game_obj.fen, page_orientation));
+  updateStatus();
+}
+
+
+
+const eventSource = new EventSource('http://localhost:3000/api/game/gameupdatestream');
 eventSource.onmessage = function(event) {
     const gameData = JSON.parse(event.data);
     console.log('Received game update:', gameData);
     // Process the received game update, update UI, etc.
-    alert(`Received game update: ${JSON.stringify(gameData)}`);
+    updateGamePage(gameData);
 };
 });
