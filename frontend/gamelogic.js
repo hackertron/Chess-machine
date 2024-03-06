@@ -7,14 +7,20 @@ var $pgn = $('#pgn')
 function onDragStart (source, piece, position, orientation) {
   console.log("drag start");
 
+  console.log("orientation : ", orientation);
+
   // do not pick up pieces if the game is over
   if (game.game_over()) return false
 
   // only pick up pieces for the side to move
-  if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-      (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+  if ((orientation === 'black' && piece.search(/^w/) !== -1) || (orientation === 'white' && piece.search(/^b/) !== -1)) {
+    return false;
+}
+
+// only pick up pieces for the side to move
+if ((game.turn() === 'w' && piece.search(/^b/) !== -1) || (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
     return false
-  }
+}
 }
 
 function onDrop (source, target) {
@@ -26,6 +32,7 @@ function onDrop (source, target) {
     to: target,
     promotion: 'q' // NOTE: always promote to a queen for example simplicity
   })
+  console.log("move : ", move);
 
   // illegal move
   if (move === null) return 'snapback'

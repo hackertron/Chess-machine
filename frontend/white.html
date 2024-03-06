@@ -28,28 +28,28 @@
 <script src="gamelogic.js"></script>
 <script>
 function submitMove() {
-  // set pgn and fen values to localstorage and send http request
-  localStorage.setItem('fen', game.fen())
-  localStorage.setItem('pgn', game.pgn())
-  fetch('/move', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      fen: game.fen(),
-      pgn: game.pgn()
+    // set pgn and fen values to localstorage and send http request
+    localStorage.setItem('fen', game.fen())
+    localStorage.setItem('pgn', game.pgn())
+    fetch('/move', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fen: game.fen(),
+        pgn: game.pgn()
+      })
     })
-  })
-  .then((response) => response.json())
-  .then((data) => {
-    console.log('Success:', data);
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
-}
-    </script>
+    .then((response) => response.json())
+    .then((data) => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  }
+      </script>
 </body>
 </html>

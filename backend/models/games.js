@@ -1,4 +1,3 @@
-// cretae user model, user will include random user id, current game, in team or solo
 import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema({
@@ -22,26 +21,41 @@ const gameSchema = new mongoose.Schema({
         default: ""
     },
     white: {
-        type: String,
-        default: "",
-        required: true,
-        color: "white"
+        id: {
+            type: String,
+            default: ""
+        },
+        moves: {
+            type: String,
+            default: ""
+        }
     },
     black: {
-        type: String,
-        default: "",
-        color: "black"
+        id: {
+            type: String,
+            default: ""
+        },
+        moves: {
+            type: String,
+            default: ""
+        }
     },
     whiteAssist: {
-        type: String,
-        default: "",
-        color: "whiteAssist"
+        id: {
+            type: String,
+            default: ""
+        },
+        moves: {
+            type: String,
+            default: ""
+        }
+    },
+    consensus: {
+        type: Boolean,
+        default: false // Can only be true when both whiteAssist and white moves are equal
     }
-
-    
 });
 
 const Game = mongoose.model("Game", gameSchema);
-
 
 export default Game;
