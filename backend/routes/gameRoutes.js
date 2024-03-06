@@ -9,5 +9,5 @@ router.post("/exists", gameExists);
 router.post("/join", joinGame);
 router.post("/continue", continueGame);
 router.post("/updategame", updatedGame);
-router.get("/ganeupdatestream", gameUpdatesStream); //  server side events update
+router.get("/gameupdatestream", gameUpdatesStream); //  server side events update
 export default router;

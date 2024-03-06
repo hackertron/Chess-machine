@@ -23,13 +23,14 @@ async function contineuGame(continueGameCode, playerID) {
         const data = await response.json();
         console.log('Success:', data);
         setLocalStorage("game_obj", JSON.stringify(data));
+        setLocalStorage("gamecode", continueGameCode);
 
         // check where to redirect based on playerID
-        if (data.black === playerID) {
+        if (data.black.id === playerID) {
             window.location.href = "black.html";
-        } else if (data.whiteAssist === playerID) {
+        } else if (data.whiteAssist.id === playerID) {
             window.location.href = "white.html";
-        } else if (data.white === playerID) {
+        } else if (data.white.id === playerID) {
             window.location.href = "white.html";
         }
 }
@@ -87,7 +88,8 @@ try {
     const data = await response.json();
     console.log('Success:', data);
     setLocalStorage("game_obj", JSON.stringify(data));
-    window.location.href = "game.html";
+    setLocalStorage("gamecode", gameCode);
+    window.location.href = "white.html";
 } catch (error) {
     console.error('Error:', error);
 }

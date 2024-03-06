@@ -1,6 +1,25 @@
 import mongoose from "mongoose";
 import Game from '../models/games.js'
 import {v4 as uuidv4} from 'uuid';
+import { EventEmitter } from 'events';
+
+const emitter = new EventEmitter();
+
+export const gameUpdatesStream = async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    console.log("hitting req: ");
+    const updateHandler = (game) => {
+        res.write(`data: ${JSON.stringify(game)}\n\n`);
+    };
+
+    emitter.on('gameUpdate', updateHandler);
+
+    req.on('close', () => {
+        emitter.off('gameUpdate', updateHandler);
+    });
+};
 
 export const createGame = async (req, res) => {
     const gamecode = req.body.gameCode;
@@ -62,15 +81,26 @@ export const joinGame = async (req, res) => {
 };
 
 export const updatedGame = async (req, res) => {
-    const game = req.body;
-    const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
-    res.status(200).json(updatedGame);
+    const {gamecode, pgn, fen } = req.body;
+    console.log("updateGame gamecode : ", req.body.gamecode);
+    try {
+        // fing game by gamecode and update
+        const game = await Game.findOne({ gamecode });
+        if (!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+        game.pgn = pgn;
+        game.fen = fen;
+        const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
+        // Emit game update event
+        emitter.emit('gameUpdate', updatedGame);
+        res.status(200).json(updatedGame);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update game' });
+    }
 };
 
-export const gameUpdatesStream = async(req, res) => {
-    // Implement server-sent events to stream game updates
-    return res.status(200).json({message: "success"});
-};
+
 
 export const continueGame = async(req, res) => {
     const playerID = req.body.playerID;
