@@ -1,5 +1,5 @@
 import { submitMove, onDragStart, onDrop, onSnapEnd, updateStatus, create_config, get_page_orientation, updateGamePage } from './gamelogic.js';
-
+import { api_url } from "./baseurl.js";
 // const game = new Chess();
 // let board2 = null;
 // let page_orientation = get_page_orientation();
@@ -18,7 +18,7 @@ async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
 
 async function suggestmove(move, playerid, gamecode) {
     try {
-        const response = await fetch('http://localhost:3000/api/game/suggestmoves', {
+        const response = await fetch(api_url + '/suggestmoves', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -50,7 +50,7 @@ document.getElementById("suggestMove").addEventListener("click", () => {
     suggestmove(move, localStorage.getItem("playerID"), localStorage.getItem("gamecode"));
 });
 
-const eventSource = new EventSource('http://localhost:3000/api/game/gameupdatestream');
+const eventSource = new EventSource(api_url + '/gameupdatestream');
 eventSource.onmessage = function(event) {
     const gameData = JSON.parse(event.data);
     console.log('Received game update:', gameData);

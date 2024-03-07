@@ -1,4 +1,4 @@
-
+import { api_url } from "./baseurl.js";
 const game = new Chess();
 let board = null;
 let $status = $('#status');
@@ -7,7 +7,7 @@ let $pgn = $('#pgn');
 
 export async function getGame() {
   try {
-    const response = await fetch('http://localhost:3000/api/game/getgame', {
+    const response = await fetch(api_url + '/getgame', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -40,7 +40,7 @@ export async function submitMove() {
     console.log("consensus reached. move can be made");
   }
   try {
-    const response = await fetch('http://localhost:3000/api/game/updategame', {
+    const response = await fetch(api_url + '/updategame', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -152,7 +152,7 @@ let page_orientation = get_page_orientation();
 let config = create_config('start', page_orientation);
 console.log("config : ", config);
 board = Chessboard('myBoard', config);
-
+console.log("api url : ", api_url);
 updateStatus();
 
 document.getElementById("submitMove").addEventListener("click", () => {
@@ -166,7 +166,7 @@ export function updateGamePage(game_obj) {
   board = Chessboard('myBoard', create_config(game_obj.fen, page_orientation));
   updateStatus();
 }
-const eventSource = new EventSource('http://localhost:3000/api/game/gameupdatestream');
+const eventSource = new EventSource(api_url + '/gameupdatestream');
 eventSource.onmessage = function(event) {
     const gameData = JSON.parse(event.data);
     console.log('Received game update:', gameData);

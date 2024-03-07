@@ -1,3 +1,4 @@
+import { api_url } from "./baseurl.js";
 function setLocalStorage(key, data) {
     localStorage.setItem(key, data);
 }
@@ -6,7 +7,7 @@ async function contineuGame(continueGameCode, playerID) {
     console.log("continueGameCode : ", continueGameCode);
     console.log("playerID : ", playerID);
     try {
-        const response = await fetch('http://localhost:3000/api/game/continue', {
+        const response = await fetch(api_url + '/continue', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -43,7 +44,7 @@ async function contineuGame(continueGameCode, playerID) {
 async function joinGame(gameCode, color) {
     console.log("color : ", color);
     try {
-        const response = await fetch('http://localhost:3000/api/game/join', {
+        const response = await fetch(api_url + '/join', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -85,7 +86,7 @@ async function createGame() {
 let gameCode = document.getElementById("gameCode").value;
 console.log("gameCode : ", gameCode);
 try {
-    const response = await fetch('http://localhost:3000/api/game/create', {
+    const response = await fetch(api_url + '/create', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',

@@ -1,0 +1,1 @@
+export const api_url = "https://chess-machine.onrender.com/api/game";
