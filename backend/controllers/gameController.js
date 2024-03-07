@@ -102,6 +102,8 @@ export const updatedGame = async (req, res) => {
         }
         game.pgn = pgn;
         game.fen = fen;
+        // set consensus
+        game.consensus = false;
         const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
         // Emit game update event
         emitter.emit('gameUpdate', updatedGame);
@@ -159,6 +161,8 @@ export const continueGame = async(req, res) => {
         if (game.black.id !== playerID && game.whiteAssist.id !== playerID && game.white.id !== playerID) {
             return res.status(404).json({message: "Player not in game"});
         }
+        // Emit game update event
+        emitter.emit('gameUpdate', game);
         return res.status(200).json(game);
     } catch (error) {
         return res.status(404).json({message: error.message});
