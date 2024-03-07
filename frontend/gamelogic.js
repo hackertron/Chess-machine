@@ -1,13 +1,44 @@
-document.addEventListener('DOMContentLoaded', function() {
 
-const game = new Chess()
-let board = null
-let $status = $('#status')
-let $fen = $('#fen')
-let $pgn = $('#pgn')
+const game = new Chess();
+let board = null;
+let $status = $('#status');
+let $fen = $('#fen');
+let $pgn = $('#pgn');
 
+export async function getGame() {
+  try {
+    const response = await fetch('http://localhost:3000/api/game/getgame', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        gamecode: localStorage.getItem('gamecode')
+      })
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get game');
+    }
+    const data = await response.json();
+    console.log('Success:', data);
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
 
-async function submitMove () {
+export async function submitMove() {
+  const orientation = get_page_orientation();
+  const game_data = await getGame();
+  console.log("consensus data : ", game_data.consensus);
+  if (!game_data.consensus && orientation === "white") {
+    console.log("reach consensus first");
+    alert("reach consensus first, suggest moves first");
+    return;
+  } else {
+    console.log("consensus reached. move can be made");
+  }
   try {
     const response = await fetch('http://localhost:3000/api/game/updategame', {
       method: 'POST',
@@ -16,7 +47,7 @@ async function submitMove () {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        gamecode: localStorage.getItem('gamecode'), 
+        gamecode: localStorage.getItem('gamecode'),
         pgn: game.pgn(),
         fen: game.fen()
       })
@@ -26,31 +57,31 @@ async function submitMove () {
     }
     const data = await response.json();
     console.log('Success:', data);
-    } catch (error) {
-      console.error('Error:', error);
-    }    
+  } catch (error) {
+    console.error('Error:', error);
+  }
 }
 
-function onDragStart (source, piece, position, orientation) {
+export function onDragStart(source, piece, position, orientation) {
   console.log("drag start");
 
   console.log("orientation : ", orientation);
 
   // do not pick up pieces if the game is over
-  if (game.game_over()) return false
+  if (game.game_over()) return false;
+
+  //only pick up pieces for the side to move
+  if ((orientation === 'black' && piece.search(/^w/) !== -1) || (orientation === 'white' && piece.search(/^b/) !== -1)) {
+    return false;
+  }
 
   // only pick up pieces for the side to move
-//   if ((orientation === 'black' && piece.search(/^w/) !== -1) || (orientation === 'white' && piece.search(/^b/) !== -1)) {
-//     return false;
-// }
-
-// only pick up pieces for the side to move
-if ((game.turn() === 'w' && piece.search(/^b/) !== -1) || (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-    return false
-}
+  if ((game.turn() === 'w' && piece.search(/^b/) !== -1) || (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+    return false;
+  }
 }
 
-function onDrop (source, target) {
+export function onDrop(source, target) {
   console.log("drag stopped");
   console.log("game obj : ", game);
   // see if the move is legal
@@ -58,59 +89,46 @@ function onDrop (source, target) {
     from: source,
     to: target,
     promotion: 'q' // NOTE: always promote to a queen for example simplicity
-  })
+  });
   console.log("move : ", move);
 
   // illegal move
-  if (move === null) return 'snapback'
+  if (move === null) return 'snapback';
 
-  updateStatus()
+  updateStatus();
 }
 
-// update the board position after the piece snap
-// for castling, en passant, pawn promotion
-function onSnapEnd () {
-  board.position(game.fen())
+export function onSnapEnd() {
+  board.position(game.fen());
 }
 
-function updateStatus () {
-  let status = ''
-
-  let moveColor = 'White'
+export function updateStatus() {
+  let status = '';
+  let moveColor = 'White';
   if (game.turn() === 'b') {
-    moveColor = 'Black'
+    moveColor = 'Black';
   }
 
-  // checkmate?
   if (game.in_checkmate()) {
-    status = 'Game over, ' + moveColor + ' is in checkmate.'
-  }
-
-  // draw?
-  else if (game.in_draw()) {
-    status = 'Game over, drawn position'
-  }
-
-  // game still on
-  else {
-    status = moveColor + ' to move'
-
-    // check?
+    status = 'Game over, ' + moveColor + ' is in checkmate.';
+  } else if (game.in_draw()) {
+    status = 'Game over, drawn position';
+  } else {
+    status = moveColor + ' to move';
     if (game.in_check()) {
-      status += ', ' + moveColor + ' is in check'
+      status += ', ' + moveColor + ' is in check';
     }
   }
 
-  $status.html(status)
-  $fen.html(game.fen())
-  $pgn.html(game.pgn())
+  $status.html(status);
+  $fen.html(game.fen());
+  $pgn.html(game.pgn());
 }
 
-function create_config(board_pos, orientation) {
-
+export function create_config(board_pos, orientation) {
   let config = {
     draggable: true,
-    position: board_pos,// board positions
+    position: board_pos,
     onDragStart: onDragStart,
     onDrop: onDrop,
     onSnapEnd: onSnapEnd,
@@ -118,41 +136,36 @@ function create_config(board_pos, orientation) {
     showErrors: console,
     orientation: orientation
   }
-  return config
-}
-// get white or black page
-function get_page_orientation(){
-  const url = window.location.href
-  if (url.includes("white.html")) {
-    return "white"
-  } else if (url.includes("black.html")) {
-    return "black"
-  }
+  return config;
 }
 
+export function get_page_orientation() {
+  const url = window.location.href;
+  if (url.includes("white.html")) {
+    return "white";
+  } else if (url.includes("black.html")) {
+    return "black";
+  }
+}
 
 let page_orientation = get_page_orientation();
 let config = create_config('start', page_orientation);
 console.log("config : ", config);
-board = Chessboard('myBoard', config)
+board = Chessboard('myBoard', config);
 
-updateStatus()
+updateStatus();
 
 document.getElementById("submitMove").addEventListener("click", () => {
   console.log("submit move");
   submitMove();
-})
+});
 
-
-function updateGamePage(game_obj) {
+export function updateGamePage(game_obj) {
   game.load(game_obj.fen);
   board.destroy();
   board = Chessboard('myBoard', create_config(game_obj.fen, page_orientation));
   updateStatus();
 }
-
-
-
 const eventSource = new EventSource('http://localhost:3000/api/game/gameupdatestream');
 eventSource.onmessage = function(event) {
     const gameData = JSON.parse(event.data);
@@ -160,4 +173,3 @@ eventSource.onmessage = function(event) {
     // Process the received game update, update UI, etc.
     updateGamePage(gameData);
 };
-});

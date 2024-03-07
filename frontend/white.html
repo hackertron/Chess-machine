@@ -21,11 +21,19 @@
     <div id = "container">
       <button id = "submitMove" class="button">Submit Move</button>
     </div>
-    <div id="board2" style="width: 400px;"></div>
+    <div id = "suggestion">
+      <input type="text" id="suggestedMove" placeholder="h4"></input>
+      <button id = "suggestMove" class="button">Suggest Move</button>
+    </div>
+    <div id = "suggestionBox">
+      <p id = "suggestionText"></p>
+      <div id="board2" style="width: 400px;"></div>
+      <div id="board3" style="width: 400px;"></div>
+    </div>
 <script src="https://chessboardjs.com/js/chess-0.10.2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD" crossorigin="anonymous"></script>
-<script src="gamelogic.js"></script>
-<script src="white.js"></script>
+<script type= "module" src="gamelogic.js"></script>
+<script type= "module" src="white.js"></script>
 </body>
 </html>

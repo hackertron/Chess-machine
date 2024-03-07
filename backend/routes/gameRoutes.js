@@ -1,5 +1,7 @@
 import express from "express";
-import {createGame, gameExists, joinGame, updatedGame, gameUpdatesStream, continueGame} from "../controllers/gameController.js";
+import {createGame, gameExists, joinGame, 
+    updatedGame, gameUpdatesStream, continueGame, suggestMoves,
+    getGame} from "../controllers/gameController.js";
 
 const router = express.Router();
 
@@ -9,5 +11,7 @@ router.post("/exists", gameExists);
 router.post("/join", joinGame);
 router.post("/continue", continueGame);
 router.post("/updategame", updatedGame);
+router.post("/suggestmoves", suggestMoves);
 router.get("/gameupdatestream", gameUpdatesStream); //  server side events update
+router.post("/getgame", getGame);
 export default router;

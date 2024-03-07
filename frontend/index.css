@@ -27,4 +27,10 @@ body {
 #joinWhite {
     background-color: #fffbfb;
     color: #000000;
-} 
+}
+#suggestionBox {
+    /* style so that items are in a row next to each other */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}

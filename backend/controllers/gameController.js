@@ -4,6 +4,18 @@ import { EventEmitter } from 'events';
 
 const emitter = new EventEmitter();
 
+export const getGame = async(req, res) => {
+    //get game by gamecode
+    const gamecode = req.body.gamecode;
+    console.log("getGame body code : ", gamecode);
+    try {
+        const game = await Game.findOne({gamecode});
+        res.status(200).json(game);
+    } catch (error) {
+        res.status(404).json({message: error.message});
+    }
+}
+
 export const gameUpdatesStream = async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -99,6 +111,40 @@ export const updatedGame = async (req, res) => {
     }
 };
 
+
+export const suggestMoves = async(req, res) => {
+    const playerID = req.body.playerID;
+    const gamecode = req.body.gamecode;
+    const move = req.body.move;
+    console.log("gamecode : ", gamecode);
+    console.log("playerID : ", playerID);
+    console.log("move : ", move);
+    try {
+        const game = await Game.findOne({gamecode});
+        if (!game) {
+            return res.status(404).json({message: "Game not found"});
+        }
+        if (game.black.id !== playerID && game.whiteAssist.id !== playerID && game.white.id !== playerID) {
+            return res.status(404).json({message: "Player not in game"});
+        }
+        // set the move for with playerid
+        if (game.black.id === playerID) {
+            game.black.moves = move;
+        } else if (game.whiteAssist.id === playerID) {
+            game.whiteAssist.moves = move;
+        } else if (game.white.id === playerID) {
+            game.white.moves = move;
+        }
+        // update if same moves
+        if(game.white.moves === game.whiteAssist.moves){
+            game.consensus = true;
+        }
+        const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
+        return res.status(200).json(updatedGame);
+    } catch (error) {
+        return res.status(404).json({message: error.message});
+    }
+}
 
 
 export const continueGame = async(req, res) => {

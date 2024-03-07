@@ -24,6 +24,7 @@ async function contineuGame(continueGameCode, playerID) {
         console.log('Success:', data);
         setLocalStorage("game_obj", JSON.stringify(data));
         setLocalStorage("gamecode", continueGameCode);
+        setLocalStorage("playerID", playerID);
 
         // check where to redirect based on playerID
         if (data.black.id === playerID) {
@@ -60,6 +61,19 @@ async function joinGame(gameCode, color) {
         console.log('Success:', data);
         setLocalStorage("game_obj", JSON.stringify(data));
         setLocalStorage("gamecode", gameCode);
+        // get id of player from data object and set playerid in localstorage
+        if(color === "black") {
+            let playerID = data.black.id;
+            setLocalStorage("playerID", playerID);
+        }
+        else if(color === "whiteAssist") {
+            let playerID = data.whiteAssist.id;
+            setLocalStorage("playerID", playerID);
+        }
+        else if(color === "white") {
+            let playerID = data.white.id;
+            setLocalStorage("playerID", playerID);
+        }
         window.location.href = color + ".html";
     } catch (error) {
         console.error('Error:', error);
@@ -90,6 +104,7 @@ try {
     console.log('Success:', data);
     setLocalStorage("game_obj", JSON.stringify(data));
     setLocalStorage("gamecode", gameCode);
+    setLocalStorage("PlayerID", data.white.id);
     window.location.href = "white.html";
 } catch (error) {
     console.error('Error:', error);
