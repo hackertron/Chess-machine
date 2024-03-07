@@ -35,6 +35,7 @@ export async function submitMove() {
   if (!game_data.consensus && orientation === "white") {
     console.log("reach consensus first");
     alert("reach consensus first, suggest moves first");
+    location.reload();
     return;
   } else {
     console.log("consensus reached. move can be made");
@@ -83,7 +84,6 @@ export function onDragStart(source, piece, position, orientation) {
 
 export function onDrop(source, target) {
   console.log("drag stopped");
-  console.log("game obj : ", game);
   // see if the move is legal
   let move = game.move({
     from: source,
@@ -165,6 +165,8 @@ export function updateGamePage(game_obj) {
   board.destroy();
   board = Chessboard('myBoard', create_config(game_obj.fen, page_orientation));
   updateStatus();
+  localStorage.setItem("game_obj", JSON.stringify(game_obj));
+  console.log("updateGamepage : ", game_obj);
 }
 const eventSource = new EventSource(api_url + '/gameupdatestream');
 eventSource.onmessage = function(event) {
@@ -173,3 +175,8 @@ eventSource.onmessage = function(event) {
     // Process the received game update, update UI, etc.
     updateGamePage(gameData);
 };
+
+document.addEventListener('DOMContentLoaded', async function() {
+    const game_data = await getGame();
+    updateGamePage(game_data);
+});

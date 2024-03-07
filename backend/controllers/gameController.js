@@ -140,6 +140,8 @@ export const suggestMoves = async(req, res) => {
         // update if same moves
         if(game.white.moves === game.whiteAssist.moves){
             game.consensus = true;
+        } else if (game.white.moves != game.whiteAssist.moves) {
+            game.consensus = false;
         }
         const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
         return res.status(200).json(updatedGame);
