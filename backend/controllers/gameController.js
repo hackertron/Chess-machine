@@ -40,6 +40,7 @@ export const createGame = async (req, res) => {
         gamecode,
         gamestatus: "waiting",
         pgn: "",
+        fen: "start",
         white: { id: whiteString, moves: "" }, // Update to use nested object for white
     });
     try {

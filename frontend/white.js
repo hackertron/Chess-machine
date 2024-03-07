@@ -56,5 +56,4 @@ eventSource.onmessage = function(event) {
     console.log('Received game update:', gameData);
     // Process the received game update, update UI, etc.
     updateGamePage(gameData);
-    suggestionTextupdate(gameData.white.moves, gameData.whiteAssist.moves);
 };

@@ -23,6 +23,7 @@ async function contineuGame(continueGameCode, playerID) {
         }
         const data = await response.json();
         console.log('Success:', data);
+        localStorage.clear();
         setLocalStorage("game_obj", JSON.stringify(data));
         setLocalStorage("gamecode", continueGameCode);
         setLocalStorage("playerID", playerID);
@@ -103,6 +104,7 @@ try {
 
     const data = await response.json();
     console.log('Success:', data);
+    localStorage.clear();
     setLocalStorage("game_obj", JSON.stringify(data));
     setLocalStorage("gamecode", gameCode);
     setLocalStorage("PlayerID", data.white.id);

@@ -160,6 +160,12 @@ document.getElementById("submitMove").addEventListener("click", () => {
   submitMove();
 });
 
+async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
+  let suggestionText = "suggested moves from white team are " + whiteMoves + "\n and suggested moves from white assist team are " + whiteAssistMoves;
+  document.getElementById("suggestionBox").innerHTML = suggestionText;
+  console.log("suggestion text : ", suggestionText);
+}
+
 export function updateGamePage(game_obj) {
   game.load(game_obj.fen);
   board.destroy();
@@ -167,6 +173,9 @@ export function updateGamePage(game_obj) {
   updateStatus();
   localStorage.setItem("game_obj", JSON.stringify(game_obj));
   console.log("updateGamepage : ", game_obj);
+  if(page_orientation == "white"){
+    suggestionTextupdate(game_obj.white.moves, game_obj.whiteAssist.moves);
+  }
 }
 const eventSource = new EventSource(api_url + '/gameupdatestream');
 eventSource.onmessage = function(event) {
