@@ -93,6 +93,6 @@ function initializeWhiteBoards(board_pos="start") {
         // Store game and board references
         games[i] = game;
         boards[i] = board;
-        updateStatus(games[i]); // Update status for the initial game state
+        updateStatus(games[i], 'board' + (i + 1)); // Update status for the initial game state
     }
 }

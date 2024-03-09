@@ -153,6 +153,7 @@ export function get_page_orientation() {
 export function initializeBoard(boardId, board_pos="start", orientation) {
   // Create a new game instance
   const game = new Chess();
+  game.load(board_pos);
   
   // Create board config based on orientation
   const config = create_config(game, boardId, board_pos, orientation);
