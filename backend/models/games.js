@@ -56,6 +56,51 @@ const gameSchema = new mongoose.Schema({
     }
 });
 
-const Game = mongoose.model("Game", gameSchema);
+const consensusSchema  = new mongoose.Schema({
+    gamecode: {
+        type: String,
+        unique: true,
+        required: true
+    },
+    board1: {
+        white: {
+            id: {
+                type: String,
+                default: ""
+            },
+        },
+        black: {
+            id: {
+                type: String,
+                default: ""
+            }
+        },
+        fen: {
+            type: String,
+            default: ""
+        }
+    },
+    board2: {
+        white: {
+            id: {
+                type: String,
+                default: ""
+            }
+        },
+        black: {
+            id: {
+                type: String,
+                default: ""
+            }
+        },
+        fen: {
+            type: String,
+            default: ""
+        }
+    }
+});
 
-export default Game;
+const Game = mongoose.model("Game", gameSchema);
+const ConsensusBoards = mongoose.model("ConsensusBoards", consensusSchema);
+
+export { Game, ConsensusBoards };

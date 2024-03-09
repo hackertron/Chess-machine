@@ -1,6 +1,5 @@
 import { api_url } from "./baseurl.js";
-const game = new Chess();
-let board = null;
+
 let $status = $('#status');
 let $fen = $('#fen');
 let $pgn = $('#pgn');
@@ -63,13 +62,14 @@ export async function submitMove() {
   }
 }
 
-export function onDragStart(source, piece, position, orientation) {
+export function onDragStart(source, piece, position, orientation, game_obj) {
   console.log("drag start");
-
+  console.log("board: ")
   console.log("orientation : ", orientation);
+  console.log("game object : ", game_obj);
 
   // do not pick up pieces if the game is over
-  if (game.game_over()) return false;
+  if (game_obj.game_over()) return false;
 
   //only pick up pieces for the side to move
   if ((orientation === 'black' && piece.search(/^w/) !== -1) || (orientation === 'white' && piece.search(/^b/) !== -1)) {
@@ -77,7 +77,7 @@ export function onDragStart(source, piece, position, orientation) {
   }
 
   // only pick up pieces for the side to move
-  if ((game.turn() === 'w' && piece.search(/^b/) !== -1) || (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+  if ((game_obj.turn() === 'w' && piece.search(/^b/) !== -1) || (game_obj.turn() === 'b' && piece.search(/^w/) !== -1)) {
     return false;
   }
 }
@@ -102,7 +102,7 @@ export function onSnapEnd() {
   board.position(game.fen());
 }
 
-export function updateStatus() {
+export function updateStatus(game) {
   let status = '';
   let moveColor = 'White';
   if (game.turn() === 'b') {
@@ -125,18 +125,17 @@ export function updateStatus() {
   $pgn.html(game.pgn());
 }
 
-export function create_config(board_pos, orientation) {
-  let config = {
+export function create_config(game, gameIndex, board_pos, orientation) {
+  return {
     draggable: true,
     position: board_pos,
-    onDragStart: onDragStart,
-    onDrop: onDrop,
-    onSnapEnd: onSnapEnd,
+    onDragStart: onDragStart.bind(game, gameIndex),
+    onDrop: onDrop.bind(game, gameIndex),
+    onSnapEnd: onSnapEnd.bind(game, gameIndex),
     showNotation: true,
-    showErrors: console,
+    showErrors: 'console',
     orientation: orientation
-  }
-  return config;
+  };
 }
 
 export function get_page_orientation() {
@@ -147,13 +146,19 @@ export function get_page_orientation() {
     return "black";
   }
 }
-
-let page_orientation = get_page_orientation();
-let config = create_config('start', page_orientation);
-console.log("config : ", config);
-board = Chessboard('myBoard', config);
-console.log("api url : ", api_url);
-updateStatus();
+// Function to initialize board
+export function initializeBoard(gameIndex, boardId, board_pos="start", orientation) {
+  // Create a new game instance
+  const game = new Chess();
+  
+  // Create board config based on orientation
+  const config = create_config(game, gameIndex, board_pos, orientation);
+  
+  // Create the board and store it in the boards array
+  const board = Chessboard(boardId, config);
+  
+  return { game, board };
+}
 
 document.getElementById("submitMove").addEventListener("click", () => {
   console.log("submit move");
@@ -177,15 +182,4 @@ export function updateGamePage(game_obj) {
     suggestionTextupdate(game_obj.white.moves, game_obj.whiteAssist.moves);
   }
 }
-const eventSource = new EventSource(api_url + '/gameupdatestream');
-eventSource.onmessage = function(event) {
-    const gameData = JSON.parse(event.data);
-    console.log('Received game update:', gameData);
-    // Process the received game update, update UI, etc.
-    updateGamePage(gameData);
-};
 
-document.addEventListener('DOMContentLoaded', async function() {
-    const game_data = await getGame();
-    updateGamePage(game_data);
-});

@@ -9,7 +9,7 @@
     <title>Simple Chess App</title>
 </head>
 <body>
-    <div id="myBoard" style="width: 400px"></div>
+    <div id="board1" style="width: 400px"></div>
     <label>Status:</label>
     <div id="status"></div>
     <label>FEN:</label>
@@ -27,9 +27,19 @@
     </div>
     <div id = "suggestionBox">
       <p id = "suggestionText"></p>
-      <div id="board2" style="width: 400px;"></div>
-      <div id="board3" style="width: 400px;"></div>
     </div>
+    <div id ="whiteBoards">
+      <div>
+        <div id="board2" style="width: 400px;"></div>
+        <button id ="submitBoard2" class="button">Submit Move</button>
+      </div>
+      <div>
+        <div id="board3" style="width: 400px;"></div>
+        <button id ="submitBoard3" class="button">Submit Move</button>
+      </div>
+      
+    </div>
+
 <script src="https://chessboardjs.com/js/chess-0.10.2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD" crossorigin="anonymous"></script>
