@@ -1,4 +1,4 @@
-import { getGame, onDragStart, onDrop, onSnapEnd, updateStatus, create_config,
+import { getGame, onDragStart, onDrop, onSnapEnd, updateStatus,
     get_page_orientation, updateGamePage,
     initializeBoard  } from './gamelogic.js';
 import { api_url } from "./baseurl.js";
@@ -89,7 +89,7 @@ function initializeWhiteBoards(board_pos="start") {
     // Loop through each game and create its corresponding board
     for(let i = 0; i < games.length; i++) {
         // Initialize board using common function from gamelogic.js
-        const { game, board } = initializeBoard(i, 'board' + (i + 1), board_pos, board_orientations[i]);
+        const { game, board } = initializeBoard('board' + (i + 1), board_pos, board_orientations[i]);
         // Store game and board references
         games[i] = game;
         boards[i] = board;

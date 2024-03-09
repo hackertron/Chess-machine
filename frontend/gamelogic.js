@@ -3,6 +3,7 @@ import { api_url } from "./baseurl.js";
 let $status = $('#status');
 let $fen = $('#fen');
 let $pgn = $('#pgn');
+let boardObjects = {};
 
 export async function getGame() {
   try {
@@ -62,14 +63,15 @@ export async function submitMove() {
   }
 }
 
-export function onDragStart(source, piece, position, orientation, game_obj) {
+export function onDragStart(game, boardId, source, piece, position, orientation) {
+  console.log("games", game);
   console.log("drag start");
   console.log("board: ")
   console.log("orientation : ", orientation);
-  console.log("game object : ", game_obj);
+  console.log("game object : ", game);
 
   // do not pick up pieces if the game is over
-  if (game_obj.game_over()) return false;
+  if (game.game_over()) return false;
 
   //only pick up pieces for the side to move
   if ((orientation === 'black' && piece.search(/^w/) !== -1) || (orientation === 'white' && piece.search(/^b/) !== -1)) {
@@ -77,12 +79,12 @@ export function onDragStart(source, piece, position, orientation, game_obj) {
   }
 
   // only pick up pieces for the side to move
-  if ((game_obj.turn() === 'w' && piece.search(/^b/) !== -1) || (game_obj.turn() === 'b' && piece.search(/^w/) !== -1)) {
+  if ((game.turn() === 'w' && piece.search(/^b/) !== -1) || (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
     return false;
   }
 }
 
-export function onDrop(source, target) {
+export function onDrop(game, boardId, source, target) {
   console.log("drag stopped");
   // see if the move is legal
   let move = game.move({
@@ -95,14 +97,15 @@ export function onDrop(source, target) {
   // illegal move
   if (move === null) return 'snapback';
 
-  updateStatus();
+  updateStatus(game, boardId);
 }
 
-export function onSnapEnd() {
+export function onSnapEnd(game, boardId) {
+  const board = boardObjects[boardId];
   board.position(game.fen());
 }
 
-export function updateStatus(game) {
+export function updateStatus(game, boardId) {
   let status = '';
   let moveColor = 'White';
   if (game.turn() === 'b') {
@@ -125,13 +128,13 @@ export function updateStatus(game) {
   $pgn.html(game.pgn());
 }
 
-export function create_config(game, gameIndex, board_pos, orientation) {
+export function create_config(game, boardId, board_pos, orientation) {
   return {
     draggable: true,
     position: board_pos,
-    onDragStart: onDragStart.bind(game, gameIndex),
-    onDrop: onDrop.bind(game, gameIndex),
-    onSnapEnd: onSnapEnd.bind(game, gameIndex),
+    onDragStart: onDragStart.bind(null, game, boardId),
+    onDrop: onDrop.bind(null, game, boardId),
+    onSnapEnd: onSnapEnd.bind(null, game, boardId),
     showNotation: true,
     showErrors: 'console',
     orientation: orientation
@@ -147,15 +150,17 @@ export function get_page_orientation() {
   }
 }
 // Function to initialize board
-export function initializeBoard(gameIndex, boardId, board_pos="start", orientation) {
+export function initializeBoard(boardId, board_pos="start", orientation) {
   // Create a new game instance
   const game = new Chess();
   
   // Create board config based on orientation
-  const config = create_config(game, gameIndex, board_pos, orientation);
+  const config = create_config(game, boardId, board_pos, orientation);
   
   // Create the board and store it in the boards array
   const board = Chessboard(boardId, config);
+  // store board in boardObjects
+  boardObjects[boardId] = board;
   
   return { game, board };
 }
