@@ -3,7 +3,7 @@ import { api_url } from "./baseurl.js";
 let $status = $('#status');
 let $fen = $('#fen');
 let $pgn = $('#pgn');
-let boardObjects = {};
+export let boardObjects = {};
 
 export async function getGame() {
   try {

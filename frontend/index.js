@@ -65,14 +65,17 @@ async function joinGame(gameCode, color) {
         // get id of player from data object and set playerid in localstorage
         if(color === "black") {
             let playerID = data.black.id;
+            setLocalStorage("color", "black");
             setLocalStorage("playerID", playerID);
         }
         else if(color === "whiteAssist") {
             let playerID = data.whiteAssist.id;
+            setLocalStorage("color", "whiteAssist");
             setLocalStorage("playerID", playerID);
         }
         else if(color === "white") {
             let playerID = data.white.id;
+            setLocalStorage("color", "white");
             setLocalStorage("playerID", playerID);
         }
         window.location.href = color + ".html";
@@ -106,6 +109,7 @@ try {
     setLocalStorage("game_obj", JSON.stringify(data));
     setLocalStorage("gamecode", gameCode);
     setLocalStorage("PlayerID", data.white.id);
+    setLocalStorage("color", "white");
     window.location.href = "white.html";
 } catch (error) {
     console.error('Error:', error);
@@ -121,8 +125,8 @@ document.getElementById("start").addEventListener("click", () => {
 document.getElementById("joinBlack").addEventListener("click", () => {
     joinGame(document.getElementById("gameCode").value, "black")
 })
-document.getElementById("joinWhite").addEventListener("click", () => {
-    joinGame(document.getElementById("gameCode").value, "white")
+document.getElementById("joinWhiteAssist").addEventListener("click", () => {
+    joinGame(document.getElementById("gameCode").value, "whiteAssist")
 })
 
 

@@ -1,4 +1,4 @@
-import {Game} from '../models/games.js'
+import {Game, ConsensusGames} from '../models/games.js'
 import {v4 as uuidv4} from 'uuid';
 import { EventEmitter } from 'events';
 
@@ -116,39 +116,11 @@ export const updatedGame = async (req, res) => {
 
 
 export const suggestMoves = async(req, res) => {
-    const playerID = req.body.playerID;
-    const gamecode = req.body.gamecode;
-    const move = req.body.move;
+    const {gamecode, playerID, boardId, game_fen} = req.body;
     console.log("gamecode : ", gamecode);
     console.log("playerID : ", playerID);
-    console.log("move : ", move);
-    try {
-        const game = await Game.findOne({gamecode});
-        if (!game) {
-            return res.status(404).json({message: "Game not found"});
-        }
-        if (game.black.id !== playerID && game.whiteAssist.id !== playerID && game.white.id !== playerID) {
-            return res.status(404).json({message: "Player not in game"});
-        }
-        // set the move for with playerid
-        if (game.black.id === playerID) {
-            game.black.moves = move;
-        } else if (game.whiteAssist.id === playerID) {
-            game.whiteAssist.moves = move;
-        } else if (game.white.id === playerID) {
-            game.white.moves = move;
-        }
-        // update if same moves
-        if(game.white.moves === game.whiteAssist.moves){
-            game.consensus = true;
-        } else if (game.white.moves != game.whiteAssist.moves) {
-            game.consensus = false;
-        }
-        const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
-        return res.status(200).json(updatedGame);
-    } catch (error) {
-        return res.status(404).json({message: error.message});
-    }
+    console.log("boardId : ", boardId);
+    console.log("game_fen : ", game_fen);
 }
 
 

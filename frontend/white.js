@@ -1,6 +1,6 @@
 import { getGame, onDragStart, onDrop, onSnapEnd, updateStatus,
     get_page_orientation, updateGamePage,
-    initializeBoard  } from './gamelogic.js';
+    initializeBoard, boardObjects  } from './gamelogic.js';
 import { api_url } from "./baseurl.js";
 
 // Define three separate game instances
@@ -17,17 +17,13 @@ let boards = [
     null
   ];
 
-let board_orientations = [
-    "white",
-    "white",
-    "black"
-]
+
 async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
     let suggestionText = "suggested moves from white team are " + whiteMoves + " and suggested moves from white assist team are " + whiteAssistMoves;
     document.getElementById("suggestionBox").innerHTML = suggestionText;
 }
 
-async function suggestmove(move, playerid, gamecode) {
+async function suggestmove(playerid, boardId, game_fen, gamecode) {
     try {
         const response = await fetch(api_url + '/suggestmoves', {
             method: 'POST',
@@ -36,9 +32,10 @@ async function suggestmove(move, playerid, gamecode) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                move: move,
+                gamecode: gamecode,
                 playerID: playerid,
-                gamecode: gamecode
+                boardId: boardId,
+                game_fen: game_fen
             })
         });
         if (!response.ok) {
@@ -46,7 +43,7 @@ async function suggestmove(move, playerid, gamecode) {
         }
         const data = await response.json();
         console.log('Success:', data);
-        suggestionTextupdate(data.white.moves, data.whiteAssist.moves);
+        suggestionTextupdate(data);
     }
     catch (error) {
         console.error('Error:', error);
@@ -77,15 +74,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         game_data = JSON.parse(game_data);
         initializeWhiteBoards(game_data.fen);
     }
-    // Initialize white boards
-    //initializeWhiteBoards();
     
     // Additional white-specific logic
     // Add event listeners or other white-specific functionality here
+    for(let i = 0; i <= boards.length; i++) {
+        const submitButton = document.getElementById(`board${i+1}-submit`);
+        if(submitButton){
+            submitButton.addEventListener("click", () => {
+                console.log("board and game : ", boardObjects[`board${i+1}`], games[i].fen());
+            })
+        }
+    }
 });
 
 function initializeWhiteBoards(board_pos="start") {
     console.log("init white boards : ", board_pos);
+    let board_orientations = ["white","white","black"];
+    if(localStorage.getItem("color") == "whiteAssist"){
+        board_orientations = ["white","black","white"];
+    }
     // Loop through each game and create its corresponding board
     for(let i = 0; i < games.length; i++) {
         // Initialize board using common function from gamelogic.js
@@ -96,3 +103,4 @@ function initializeWhiteBoards(board_pos="start") {
         updateStatus(games[i], 'board' + (i + 1)); // Update status for the initial game state
     }
 }
+
