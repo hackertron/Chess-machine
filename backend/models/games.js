@@ -59,44 +59,15 @@ const gameSchema = new mongoose.Schema({
 const consensusSchema  = new mongoose.Schema({
     gamecode: {
         type: String,
-        unique: true,
         required: true
     },
-    board2: {
-        white: {
-            id: {
-                type: String,
-                default: ""
-            },
-        },
-        black: {
-            id: {
-                type: String,
-                default: ""
-            }
-        },
-        fen: {
-            type: String,
-            default: ""
-        }
+    boardId: {
+        type: String,
+        required: true
     },
-    board3: {
-        white: {
-            id: {
-                type: String,
-                default: ""
-            }
-        },
-        black: {
-            id: {
-                type: String,
-                default: ""
-            }
-        },
-        fen: {
-            type: String,
-            default: ""
-        }
+     fen: {
+        type: String,
+        default: ""
     }
 });
 

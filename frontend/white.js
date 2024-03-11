@@ -1,5 +1,4 @@
-import { getGame, onDragStart, onDrop, onSnapEnd, updateStatus,
-    get_page_orientation, updateGamePage,
+import { getGame, onDragStart, onDrop, onSnapEnd, updateStatus, updateGamePage,
     initializeBoard, boardObjects  } from './gamelogic.js';
 import { api_url } from "./baseurl.js";
 
@@ -24,6 +23,7 @@ async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
 }
 
 async function suggestmove(playerid, boardId, game_fen, gamecode) {
+    console.log("suggest move : ", playerid, boardId, game_fen, gamecode);
     try {
         const response = await fetch(api_url + '/suggestmoves', {
             method: 'POST',
@@ -33,9 +33,8 @@ async function suggestmove(playerid, boardId, game_fen, gamecode) {
             },
             body: JSON.stringify({
                 gamecode: gamecode,
-                playerID: playerid,
                 boardId: boardId,
-                game_fen: game_fen
+                fen: game_fen
             })
         });
         if (!response.ok) {
@@ -62,8 +61,18 @@ const eventSource = new EventSource(api_url + '/gameupdatestream');
 eventSource.onmessage = function(event) {
     const gameData = JSON.parse(event.data);
     console.log('Received game update:', gameData);
-    // Process the received game update, update UI, etc.
-    updateGamePage(gameData);
+    //check if gameData has boardId , if not update all boards
+    if(!gameData.boardId) {
+        initializeWhiteBoards(gameData.fen);
+    } // update only the board with boardId
+    else {
+        // Process the received game update, update UI, etc.
+        if(gameData.boardId == 'board2') {
+            updateGamePage(gameData, games[1], gameData.boardId);
+        } else if(gameData.boardId == 'board3') {
+            updateGamePage(gameData, games[2], gameData.boardId);
+        }
+    }
 };
 
 // Event listeners and other white-specific logic
@@ -82,6 +91,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         if(submitButton){
             submitButton.addEventListener("click", () => {
                 console.log("board and game : ", boardObjects[`board${i+1}`], games[i].fen());
+                suggestmove(localStorage.getItem("playerID"), `board${i+1}`, games[i].fen(), localStorage.getItem("gamecode"));
+                
             })
         }
     }
@@ -103,4 +114,3 @@ function initializeWhiteBoards(board_pos="start") {
         updateStatus(games[i], 'board' + (i + 1)); // Update status for the initial game state
     }
 }
-

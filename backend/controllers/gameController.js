@@ -22,6 +22,7 @@ export const gameUpdatesStream = async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     console.log("hitting req: ");
     const updateHandler = (game) => {
+        console.log("sending emit data to client: ", game);
         res.write(`data: ${JSON.stringify(game)}\n\n`);
     };
 
@@ -116,11 +117,34 @@ export const updatedGame = async (req, res) => {
 
 
 export const suggestMoves = async(req, res) => {
-    const {gamecode, playerID, boardId, game_fen} = req.body;
+    const {gamecode, boardId, fen} = req.body;
     console.log("gamecode : ", gamecode);
-    console.log("playerID : ", playerID);
     console.log("boardId : ", boardId);
-    console.log("game_fen : ", game_fen);
+    console.log("game_fen : ", fen);
+    try {
+        const consensusGame = await ConsensusGames.findOne({"gamecode": gamecode, "boardId": boardId});
+        if (!consensusGame) {
+            // create one and return
+            const consensus = new ConsensusGames({
+                gamecode,
+                boardId,
+                fen
+            })
+            await consensus.save();
+            return res.status(200).json(consensus);
+        }
+        // set consensus
+        consensusGame.fen = fen;
+        await consensusGame.save();
+        // Emit game update event
+        emitter.emit('gameUpdate', consensusGame);
+        return res.status(200).json(consensusGame);
+    }
+    catch (error) {
+        console.log("error: ", error.message);
+        console.log("error: ", error);
+        return res.status(500).json({message: error.message});
+    }
 }
 
 

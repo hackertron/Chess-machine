@@ -72,6 +72,7 @@ async function joinGame(gameCode, color) {
             let playerID = data.whiteAssist.id;
             setLocalStorage("color", "whiteAssist");
             setLocalStorage("playerID", playerID);
+            color = "white";
         }
         else if(color === "white") {
             let playerID = data.white.id;
@@ -118,9 +119,6 @@ try {
 document.getElementById("start").addEventListener("click", () => {
     let result =  createGame();
     console.log("result : ", result);
-    // redirect to game.html
-    //window.location.href = "/game.html?gameCode=" + document.getElementById("gameCode").value
-    // window.location.href = "game.html"
 })
 document.getElementById("joinBlack").addEventListener("click", () => {
     joinGame(document.getElementById("gameCode").value, "black")

@@ -177,14 +177,17 @@ async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
   console.log("suggestion text : ", suggestionText);
 }
 
-export function updateGamePage(game_obj) {
-  game.load(game_obj.fen);
+export function updateGamePage(gameData, game_obj, boardId) {
+  let board = boardObjects[boardId];
+  let orientation = board.orientation();
+  game_obj.load(gameData.fen);
   board.destroy();
-  board = Chessboard('myBoard', create_config(game_obj.fen, page_orientation));
-  updateStatus();
+  board = Chessboard(boardId, create_config(game_obj, boardId, gameData.fen, orientation));
+  boardObjects[boardId] = board;
+  updateStatus(game_obj, boardId);
   localStorage.setItem("game_obj", JSON.stringify(game_obj));
   console.log("updateGamepage : ", game_obj);
-  if(page_orientation == "white"){
+  if(orientation == "white"){
     suggestionTextupdate(game_obj.white.moves, game_obj.whiteAssist.moves);
   }
 }
