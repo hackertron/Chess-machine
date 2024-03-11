@@ -1,7 +1,7 @@
 // black.js
 
 import { api_url } from "./baseurl.js";
-import { initializeBoard, onDrop, onSnapEnd, updateStatus } from "./gamelogic.js";
+import { initializeBoard, updateStatus } from "./gamelogic.js";
 
 // Define black-specific logic here
 
@@ -33,3 +33,43 @@ function initializeBlackBoard(board_pos="start") {
     updateStatus(games[i], 'board' + (i + 1)); // Update status for the initial game state
   }
 }
+
+document.getElementById("submitMove").addEventListener("click", () => {
+  submitMove();
+});
+const eventSource = new EventSource(api_url + '/gameupdatestream');
+eventSource.onmessage = function(event) {
+    const gameData = JSON.parse(event.data);
+    console.log('Received game update:', gameData);
+    initializeBlackBoard(gameData.fen);
+};
+
+export async function submitMove() {
+  const game = games[0]; // main game
+  try {
+    const response = await fetch(api_url + '/updategame', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        gamecode: localStorage.getItem('gamecode'),
+        pgn: game.pgn(),
+        fen: game.fen()
+      })
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update game');
+    }
+    const data = await response.json();
+    console.log('Success:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+document.getElementById("submitMove").addEventListener("click", () => {
+  console.log("submit move");
+  submitMove();
+});

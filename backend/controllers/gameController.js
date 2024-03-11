@@ -167,3 +167,34 @@ export const continueGame = async(req, res) => {
         return res.status(404).json({message: error.message});
     }
 };
+
+
+export const sendConsensus = async(req, res) => {
+    const {playerid, gamecode, boardId} = req.body;
+    console.log("playerid : ", playerid);
+    console.log("gamecode : ", gamecode);
+    console.log("boardId : ", boardId);
+    try {
+        const game = await Game.findOne({"gamecode": gamecode});
+        if (!game) {
+            return res.status(404).json({message: "Game not found"});
+        }
+        // check playerid is white or whiteAssist and then set it's move to boardId
+        if (playerid === game.white.id) {
+            game.white.moves = boardId;
+        } else if (playerid === game.whiteAssist.id) {
+            game.whiteAssist.moves = boardId;
+        }
+        // set consensus
+        game.consensus = true;
+        const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
+        // Emit game update event
+        emitter.emit('gameUpdate', updatedGame);
+        return res.status(200).json(updatedGame);
+    }
+    catch (error) {
+        console.log("error: ", error.message);
+        console.log("error: ", error);
+        return res.status(500).json({message: error.message});
+    }
+}

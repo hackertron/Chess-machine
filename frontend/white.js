@@ -1,4 +1,4 @@
-import { getGame, onDragStart, onDrop, onSnapEnd, updateStatus, updateGamePage,
+import { getGame, updateStatus, updateGamePage,
     initializeBoard, boardObjects  } from './gamelogic.js';
 import { api_url } from "./baseurl.js";
 
@@ -16,11 +16,6 @@ let boards = [
     null
   ];
 
-
-async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
-    let suggestionText = "suggested moves from white team are " + whiteMoves + " and suggested moves from white assist team are " + whiteAssistMoves;
-    document.getElementById("suggestionBox").innerHTML = suggestionText;
-}
 
 async function suggestmove(playerid, boardId, game_fen, gamecode) {
     console.log("suggest move : ", playerid, boardId, game_fen, gamecode);
@@ -42,19 +37,43 @@ async function suggestmove(playerid, boardId, game_fen, gamecode) {
         }
         const data = await response.json();
         console.log('Success:', data);
-        suggestionTextupdate(data);
     }
     catch (error) {
         console.error('Error:', error);
     }
 }
 
-document.getElementById("suggestMove").addEventListener("click", () => {
-    let move = document.getElementById("suggestedMove").value;
-    console.log("move : ", move);
-    console.log("playerID : ", localStorage.getItem("playerID"));
-    console.log("gamecode : ", localStorage.getItem("gamecode"));
-    suggestmove(move, localStorage.getItem("playerID"), localStorage.getItem("gamecode"));
+async function sendConsensus(boardId) {
+    try {
+        const response = await fetch(api_url + '/consensus', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                playerid: localStorage.getItem('playerID'),
+                gamecode: localStorage.getItem('gamecode'),
+                boardId: boardId
+            })
+        });
+        if (!response.ok) {
+            throw new Error('Failed to send consensus');
+        }
+        const data = await response.json();
+        console.log('Success:', data);
+    }
+    catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+document.getElementById("consensus-board2").addEventListener("click", () => {
+    sendConsensus("board2");
+});
+
+document.getElementById("consensus-board3").addEventListener("click", () => {
+    sendConsensus("board3");
 });
 
 const eventSource = new EventSource(api_url + '/gameupdatestream');
@@ -114,3 +133,43 @@ function initializeWhiteBoards(board_pos="start") {
         updateStatus(games[i], 'board' + (i + 1)); // Update status for the initial game state
     }
 }
+
+export async function submitMove() {
+    const game_data = await getGame();
+    const game = games[0]; // main game
+    console.log("consensus data : ", game_data.consensus);
+    if (!game_data.consensus) {
+      console.log("reach consensus first");
+      alert("reach consensus first, suggest moves first");
+      location.reload();
+      return;
+    } else {
+      console.log("consensus reached. move can be made");
+    }
+    try {
+      const response = await fetch(api_url + '/updategame', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          gamecode: localStorage.getItem('gamecode'),
+          pgn: game.pgn(),
+          fen: game.fen()
+        })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update game');
+      }
+      const data = await response.json();
+      console.log('Success:', data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+document.getElementById("submitMove").addEventListener("click", () => {
+    console.log("submit move");
+    submitMove();
+  });

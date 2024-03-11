@@ -28,40 +28,6 @@ export async function getGame() {
   }
 }
 
-export async function submitMove() {
-  const orientation = get_page_orientation();
-  const game_data = await getGame();
-  console.log("consensus data : ", game_data.consensus);
-  if (!game_data.consensus && orientation === "white") {
-    console.log("reach consensus first");
-    alert("reach consensus first, suggest moves first");
-    location.reload();
-    return;
-  } else {
-    console.log("consensus reached. move can be made");
-  }
-  try {
-    const response = await fetch(api_url + '/updategame', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        gamecode: localStorage.getItem('gamecode'),
-        pgn: game.pgn(),
-        fen: game.fen()
-      })
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update game');
-    }
-    const data = await response.json();
-    console.log('Success:', data);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
 
 export function onDragStart(game, boardId, source, piece, position, orientation) {
   console.log("games", game);
@@ -166,10 +132,7 @@ export function initializeBoard(boardId, board_pos="start", orientation) {
   return { game, board };
 }
 
-document.getElementById("submitMove").addEventListener("click", () => {
-  console.log("submit move");
-  submitMove();
-});
+
 
 async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
   let suggestionText = "suggested moves from white team are " + whiteMoves + "\n and suggested moves from white assist team are " + whiteAssistMoves;
