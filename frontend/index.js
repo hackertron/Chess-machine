@@ -23,7 +23,6 @@ async function contineuGame(continueGameCode, playerID) {
         }
         const data = await response.json();
         console.log('Success:', data);
-        localStorage.clear();
         setLocalStorage("game_obj", JSON.stringify(data));
         setLocalStorage("gamecode", continueGameCode);
         setLocalStorage("playerID", playerID);
@@ -66,14 +65,18 @@ async function joinGame(gameCode, color) {
         // get id of player from data object and set playerid in localstorage
         if(color === "black") {
             let playerID = data.black.id;
+            setLocalStorage("color", "black");
             setLocalStorage("playerID", playerID);
         }
         else if(color === "whiteAssist") {
             let playerID = data.whiteAssist.id;
+            setLocalStorage("color", "whiteAssist");
             setLocalStorage("playerID", playerID);
+            color = "white";
         }
         else if(color === "white") {
             let playerID = data.white.id;
+            setLocalStorage("color", "white");
             setLocalStorage("playerID", playerID);
         }
         window.location.href = color + ".html";
@@ -104,10 +107,10 @@ try {
 
     const data = await response.json();
     console.log('Success:', data);
-    localStorage.clear();
     setLocalStorage("game_obj", JSON.stringify(data));
     setLocalStorage("gamecode", gameCode);
     setLocalStorage("PlayerID", data.white.id);
+    setLocalStorage("color", "white");
     window.location.href = "white.html";
 } catch (error) {
     console.error('Error:', error);
@@ -116,15 +119,12 @@ try {
 document.getElementById("start").addEventListener("click", () => {
     let result =  createGame();
     console.log("result : ", result);
-    // redirect to game.html
-    //window.location.href = "/game.html?gameCode=" + document.getElementById("gameCode").value
-    // window.location.href = "game.html"
 })
 document.getElementById("joinBlack").addEventListener("click", () => {
     joinGame(document.getElementById("gameCode").value, "black")
 })
-document.getElementById("joinWhite").addEventListener("click", () => {
-    joinGame(document.getElementById("gameCode").value, "white")
+document.getElementById("joinWhiteAssist").addEventListener("click", () => {
+    joinGame(document.getElementById("gameCode").value, "whiteAssist")
 })
 
 

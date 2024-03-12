@@ -1,9 +1,9 @@
 import { api_url } from "./baseurl.js";
-const game = new Chess();
-let board = null;
+
 let $status = $('#status');
 let $fen = $('#fen');
 let $pgn = $('#pgn');
+export let boardObjects = {};
 
 export async function getGame() {
   try {
@@ -28,45 +28,13 @@ export async function getGame() {
   }
 }
 
-export async function submitMove() {
-  const orientation = get_page_orientation();
-  const game_data = await getGame();
-  console.log("consensus data : ", game_data.consensus);
-  if (!game_data.consensus && orientation === "white") {
-    console.log("reach consensus first");
-    alert("reach consensus first, suggest moves first");
-    location.reload();
-    return;
-  } else {
-    console.log("consensus reached. move can be made");
-  }
-  try {
-    const response = await fetch(api_url + '/updategame', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        gamecode: localStorage.getItem('gamecode'),
-        pgn: game.pgn(),
-        fen: game.fen()
-      })
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update game');
-    }
-    const data = await response.json();
-    console.log('Success:', data);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
 
-export function onDragStart(source, piece, position, orientation) {
+export function onDragStart(game, boardId, source, piece, position, orientation) {
+  console.log("games", game);
   console.log("drag start");
-
+  console.log("board: ")
   console.log("orientation : ", orientation);
+  console.log("game object : ", game);
 
   // do not pick up pieces if the game is over
   if (game.game_over()) return false;
@@ -82,7 +50,7 @@ export function onDragStart(source, piece, position, orientation) {
   }
 }
 
-export function onDrop(source, target) {
+export function onDrop(game, boardId, source, target) {
   console.log("drag stopped");
   // see if the move is legal
   let move = game.move({
@@ -95,14 +63,15 @@ export function onDrop(source, target) {
   // illegal move
   if (move === null) return 'snapback';
 
-  updateStatus();
+  updateStatus(game, boardId);
 }
 
-export function onSnapEnd() {
+export function onSnapEnd(game, boardId) {
+  const board = boardObjects[boardId];
   board.position(game.fen());
 }
 
-export function updateStatus() {
+export function updateStatus(game, boardId) {
   let status = '';
   let moveColor = 'White';
   if (game.turn() === 'b') {
@@ -125,18 +94,17 @@ export function updateStatus() {
   $pgn.html(game.pgn());
 }
 
-export function create_config(board_pos, orientation) {
-  let config = {
+export function create_config(game, boardId, board_pos, orientation) {
+  return {
     draggable: true,
     position: board_pos,
-    onDragStart: onDragStart,
-    onDrop: onDrop,
-    onSnapEnd: onSnapEnd,
+    onDragStart: onDragStart.bind(null, game, boardId),
+    onDrop: onDrop.bind(null, game, boardId),
+    onSnapEnd: onSnapEnd.bind(null, game, boardId),
     showNotation: true,
-    showErrors: console,
+    showErrors: 'console',
     orientation: orientation
-  }
-  return config;
+  };
 }
 
 export function get_page_orientation() {
@@ -147,18 +115,24 @@ export function get_page_orientation() {
     return "black";
   }
 }
+// Function to initialize board
+export function initializeBoard(boardId, board_pos="start", orientation) {
+  // Create a new game instance
+  const game = new Chess();
+  game.load(board_pos);
+  
+  // Create board config based on orientation
+  const config = create_config(game, boardId, board_pos, orientation);
+  
+  // Create the board and store it in the boards array
+  const board = Chessboard(boardId, config);
+  // store board in boardObjects
+  boardObjects[boardId] = board;
+  
+  return { game, board };
+}
 
-let page_orientation = get_page_orientation();
-let config = create_config('start', page_orientation);
-console.log("config : ", config);
-board = Chessboard('myBoard', config);
-console.log("api url : ", api_url);
-updateStatus();
 
-document.getElementById("submitMove").addEventListener("click", () => {
-  console.log("submit move");
-  submitMove();
-});
 
 async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
   let suggestionText = "suggested moves from white team are " + whiteMoves + "\n and suggested moves from white assist team are " + whiteAssistMoves;
@@ -166,26 +140,18 @@ async function suggestionTextupdate(whiteMoves, whiteAssistMoves) {
   console.log("suggestion text : ", suggestionText);
 }
 
-export function updateGamePage(game_obj) {
-  game.load(game_obj.fen);
+export function updateGamePage(gameData, game_obj, boardId) {
+  let board = boardObjects[boardId];
+  let orientation = board.orientation();
+  game_obj.load(gameData.fen);
   board.destroy();
-  board = Chessboard('myBoard', create_config(game_obj.fen, page_orientation));
-  updateStatus();
+  board = Chessboard(boardId, create_config(game_obj, boardId, gameData.fen, orientation));
+  boardObjects[boardId] = board;
+  updateStatus(game_obj, boardId);
   localStorage.setItem("game_obj", JSON.stringify(game_obj));
   console.log("updateGamepage : ", game_obj);
-  if(page_orientation == "white"){
+  if(orientation == "white"){
     suggestionTextupdate(game_obj.white.moves, game_obj.whiteAssist.moves);
   }
 }
-const eventSource = new EventSource(api_url + '/gameupdatestream');
-eventSource.onmessage = function(event) {
-    const gameData = JSON.parse(event.data);
-    console.log('Received game update:', gameData);
-    // Process the received game update, update UI, etc.
-    updateGamePage(gameData);
-};
 
-document.addEventListener('DOMContentLoaded', async function() {
-    const game_data = await getGame();
-    updateGamePage(game_data);
-});

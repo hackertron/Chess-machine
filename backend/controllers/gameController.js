@@ -1,4 +1,4 @@
-import Game from '../models/games.js'
+import {Game, ConsensusGames} from '../models/games.js'
 import {v4 as uuidv4} from 'uuid';
 import { EventEmitter } from 'events';
 
@@ -22,6 +22,7 @@ export const gameUpdatesStream = async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     console.log("hitting req: ");
     const updateHandler = (game) => {
+        console.log("sending emit data to client: ", game);
         res.write(`data: ${JSON.stringify(game)}\n\n`);
     };
 
@@ -116,38 +117,33 @@ export const updatedGame = async (req, res) => {
 
 
 export const suggestMoves = async(req, res) => {
-    const playerID = req.body.playerID;
-    const gamecode = req.body.gamecode;
-    const move = req.body.move;
+    const {gamecode, boardId, fen} = req.body;
     console.log("gamecode : ", gamecode);
-    console.log("playerID : ", playerID);
-    console.log("move : ", move);
+    console.log("boardId : ", boardId);
+    console.log("game_fen : ", fen);
     try {
-        const game = await Game.findOne({gamecode});
-        if (!game) {
-            return res.status(404).json({message: "Game not found"});
+        const consensusGame = await ConsensusGames.findOne({"gamecode": gamecode, "boardId": boardId});
+        if (!consensusGame) {
+            // create one and return
+            const consensus = new ConsensusGames({
+                gamecode,
+                boardId,
+                fen
+            })
+            await consensus.save();
+            return res.status(200).json(consensus);
         }
-        if (game.black.id !== playerID && game.whiteAssist.id !== playerID && game.white.id !== playerID) {
-            return res.status(404).json({message: "Player not in game"});
-        }
-        // set the move for with playerid
-        if (game.black.id === playerID) {
-            game.black.moves = move;
-        } else if (game.whiteAssist.id === playerID) {
-            game.whiteAssist.moves = move;
-        } else if (game.white.id === playerID) {
-            game.white.moves = move;
-        }
-        // update if same moves
-        if(game.white.moves === game.whiteAssist.moves){
-            game.consensus = true;
-        } else if (game.white.moves != game.whiteAssist.moves) {
-            game.consensus = false;
-        }
-        const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
-        return res.status(200).json(updatedGame);
-    } catch (error) {
-        return res.status(404).json({message: error.message});
+        // set consensus
+        consensusGame.fen = fen;
+        await consensusGame.save();
+        // Emit game update event
+        emitter.emit('gameUpdate', consensusGame);
+        return res.status(200).json(consensusGame);
+    }
+    catch (error) {
+        console.log("error: ", error.message);
+        console.log("error: ", error);
+        return res.status(500).json({message: error.message});
     }
 }
 
@@ -171,3 +167,34 @@ export const continueGame = async(req, res) => {
         return res.status(404).json({message: error.message});
     }
 };
+
+
+export const sendConsensus = async(req, res) => {
+    const {playerid, gamecode, boardId} = req.body;
+    console.log("playerid : ", playerid);
+    console.log("gamecode : ", gamecode);
+    console.log("boardId : ", boardId);
+    try {
+        const game = await Game.findOne({"gamecode": gamecode});
+        if (!game) {
+            return res.status(404).json({message: "Game not found"});
+        }
+        // check playerid is white or whiteAssist and then set it's move to boardId
+        if (playerid === game.white.id) {
+            game.white.moves = boardId;
+        } else if (playerid === game.whiteAssist.id) {
+            game.whiteAssist.moves = boardId;
+        }
+        // set consensus
+        game.consensus = true;
+        const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
+        // Emit game update event
+        emitter.emit('gameUpdate', updatedGame);
+        return res.status(200).json(updatedGame);
+    }
+    catch (error) {
+        console.log("error: ", error.message);
+        console.log("error: ", error);
+        return res.status(500).json({message: error.message});
+    }
+}

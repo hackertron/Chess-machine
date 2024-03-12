@@ -28,7 +28,13 @@ body {
     background-color: #fffbfb;
     color: #000000;
 }
-#suggestionBox {
+#consensusbox {
+    /* style so that items are in a row next to each other */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+#whiteBoards {
     /* style so that items are in a row next to each other */
     display: flex;
     flex-direction: row;

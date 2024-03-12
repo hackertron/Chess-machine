@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplayer Chess</title>
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous">
+</head>
+<body>
+
+<div id="board1" style="width: 400px"></div>
+<div id="board2" style="width: 400px"></div>
+<div id="board3" style="width: 400px"></div>
+
+<script src="https://chessboardjs.com/js/chess-0.10.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD" crossorigin="anonymous"></script>
+<script>
+  // Create three chess instances
+  var games = [
+    new Chess(),
+    new Chess(),
+    new Chess()
+  ];
+
+  // Create three chessboards
+  var boards = [
+    Chessboard('board1', {
+      draggable: true,
+      position: 'start',
+      onDrop: onDrop.bind(null, 0)
+    }),
+    Chessboard('board2', {
+      draggable: true,
+      position: 'start',
+      onDrop: onDrop.bind(null, 1)
+    }),
+    Chessboard('board3', {
+      draggable: true,
+      position: 'start',
+      onDrop: onDrop.bind(null, 2)
+    })
+  ];
+
+  // Function to handle move for a particular game
+  function onDrop(gameIndex, source, target) {
+    var move = games[gameIndex].move({
+      from: source,
+      to: target,
+      promotion: 'q' // default to queen promotion
+    });
+
+    // Illegal move
+    if (move === null) return 'snapback';
+
+    // Update the position on the board
+    boards[gameIndex].position(games[gameIndex].fen());
+
+    // Check for game over
+    if (games[gameIndex].game_over()) {
+      alert('Game Over');
+    }
+  }
+</script>
+
+</body>
+</html>
