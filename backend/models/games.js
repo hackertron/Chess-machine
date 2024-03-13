@@ -68,6 +68,10 @@ const consensusSchema  = new mongoose.Schema({
      fen: {
         type: String,
         default: ""
+    },
+    move: {
+        type: String,
+        default: ""
     }
 });
 
