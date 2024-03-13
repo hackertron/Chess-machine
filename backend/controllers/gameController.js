@@ -124,11 +124,13 @@ export const suggestMoves = async(req, res) => {
     try {
         const consensusGame = await ConsensusGames.findOne({"gamecode": gamecode, "boardId": boardId});
         if (!consensusGame) {
+            const move = fen;
             // create one and return
             const consensus = new ConsensusGames({
                 gamecode,
                 boardId,
-                fen
+                fen,
+                move
             })
             await consensus.save();
             return res.status(200).json(consensus);
@@ -174,6 +176,7 @@ export const sendConsensus = async(req, res) => {
     console.log("playerid : ", playerid);
     console.log("gamecode : ", gamecode);
     console.log("boardId : ", boardId);
+    let emitResults = false;
     try {
         const game = await Game.findOne({"gamecode": gamecode});
         if (!game) {
@@ -185,11 +188,26 @@ export const sendConsensus = async(req, res) => {
         } else if (playerid === game.whiteAssist.id) {
             game.whiteAssist.moves = boardId;
         }
+        console.log("white moves : ", game.white.moves);
+        console.log("whiteAssist moves : ", game.whiteAssist.moves);
         // set consensus
-        game.consensus = true;
+        if(game.white.moves === game.whiteAssist.moves){
+            game.consensus = true;
+        }
+        if(game.consensus) {
+            console.log("consensus reached");
+            const consensusGame = await ConsensusGames.findOne({"gamecode": gamecode, "boardId": boardId});
+            game.fen = consensusGame.move;
+            emitResults = true;
+            game.consensus = false;
+            game.white.moves = "";
+            game.whiteAssist.moves = "";
+        }
         const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
-        // Emit game update event
-        emitter.emit('gameUpdate', updatedGame);
+        if(emitResults) {
+            // Emit game update event
+            emitter.emit('gameUpdate', updatedGame);
+        }
         return res.status(200).json(updatedGame);
     }
     catch (error) {
