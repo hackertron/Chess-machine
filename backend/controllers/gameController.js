@@ -4,6 +4,11 @@ import { EventEmitter } from 'events';
 
 const emitter = new EventEmitter();
 
+
+export const ping = async(req, res) => {
+    res.status(200).json({message: "pong"});
+}
+
 export const getGame = async(req, res) => {
     //get game by gamecode
     const gamecode = req.body.gamecode;
