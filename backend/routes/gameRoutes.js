@@ -1,12 +1,13 @@
 import express from "express";
 import {createGame, gameExists, joinGame, 
     updatedGame, gameUpdatesStream, continueGame, suggestMoves,
-    getGame, sendConsensus} from "../controllers/gameController.js";
+    getGame, sendConsensu, ping} from "../controllers/gameController.js";
 
 const router = express.Router();
 
 // create a new game
 router.post("/create", createGame);
+router.get("/ping", ping);
 router.post("/exists", gameExists);
 router.post("/join", joinGame);
 router.post("/continue", continueGame);
