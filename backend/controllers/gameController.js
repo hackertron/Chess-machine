@@ -140,6 +140,10 @@ export const suggestMoves = async(req, res) => {
             await consensus.save();
             return res.status(200).json(consensus);
         }
+        // If consensus.move is empty, set it to fen
+        if (!consensusGame.move) {
+            consensusGame.move = fen;
+        }
         // set consensus
         consensusGame.fen = fen;
         await consensusGame.save();
@@ -207,6 +211,9 @@ export const sendConsensus = async(req, res) => {
             game.consensus = false;
             game.white.moves = "";
             game.whiteAssist.moves = "";
+            // reset the move
+            // consensusGame.move = "";
+            await consensusGame.save();
         }
         const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
         if(emitResults) {

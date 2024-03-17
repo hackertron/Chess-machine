@@ -23,16 +23,20 @@ async function contineuGame(continueGameCode, playerID) {
         }
         const data = await response.json();
         console.log('Success:', data);
+        localStorage.clear();
         setLocalStorage("game_obj", JSON.stringify(data));
         setLocalStorage("gamecode", continueGameCode);
         setLocalStorage("playerID", playerID);
 
         // check where to redirect based on playerID
         if (data.black.id === playerID) {
+            setLocalStorage("color", "black");
             window.location.href = "black.html";
         } else if (data.whiteAssist.id === playerID) {
+            setLocalStorage("color", "whiteAssist");
             window.location.href = "white.html";
         } else if (data.white.id === playerID) {
+            setLocalStorage("color", "white");
             window.location.href = "white.html";
         }
 }
@@ -60,6 +64,7 @@ async function joinGame(gameCode, color) {
         }
         const data = await response.json();
         console.log('Success:', data);
+        localStorage.clear();
         setLocalStorage("game_obj", JSON.stringify(data));
         setLocalStorage("gamecode", gameCode);
         // get id of player from data object and set playerid in localstorage
@@ -107,6 +112,7 @@ try {
 
     const data = await response.json();
     console.log('Success:', data);
+    localStorage.clear();
     setLocalStorage("game_obj", JSON.stringify(data));
     setLocalStorage("gamecode", gameCode);
     setLocalStorage("PlayerID", data.white.id);
