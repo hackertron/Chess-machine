@@ -1,8 +1,8 @@
 import { api_url } from "./baseurl.js";
 
-let $status = $('#status');
-let $fen = $('#fen');
-let $pgn = $('#pgn');
+// let $status = $('#status');
+// let $fen = $('#fen');
+// let $pgn = $('#pgn');
 export let boardObjects = {};
 
 export async function getGame() {
@@ -89,9 +89,9 @@ export function updateStatus(game, boardId) {
     }
   }
 
-  $status.html(status);
-  $fen.html(game.fen());
-  $pgn.html(game.pgn());
+  document.getElementById(`status-${boardId}`).innerHTML = status;
+  // $fen.html(game.fen());
+  // $pgn.html(game.pgn());
 }
 
 export function create_config(game, boardId, board_pos, orientation) {
