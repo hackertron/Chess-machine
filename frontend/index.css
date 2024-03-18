@@ -40,3 +40,21 @@ body {
     flex-direction: row;
     align-items: center;
 }
+
+.button {
+    background-color: #000a07;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px;
+    cursor: pointer; /* Add cursor pointer */
+    transition: background-color 0.3s ease; /* Add transition effect */
+}
+
+.button:hover {
+    background-color: #333; /* Change background color on hover */
+}

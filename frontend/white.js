@@ -67,14 +67,14 @@ async function sendConsensus(boardId) {
 document.getElementById("consensus-board2").addEventListener("click", () => {
     alert("agreed on board1");
     //disable the button
-    document.getElementById("consensus-board2").disabled = true;
+    // document.getElementById("consensus-board2").disabled = true;
     sendConsensus("board2");
 });
 
 document.getElementById("consensus-board3").addEventListener("click", () => {
     alert("agreed on board2");
     //disable the button
-    document.getElementById("consensus-board3").disabled = true;
+    // document.getElementById("consensus-board3").disabled = true;
     sendConsensus("board3");
 });
 
@@ -170,3 +170,4 @@ export async function submitMove() {
         console.error('Error:', error);
     }
 }
+
