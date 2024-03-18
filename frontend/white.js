@@ -41,6 +41,7 @@ async function suggestmove(playerid, boardId, game_fen, gamecode) {
 }
 
 async function sendConsensus(boardId) {
+    console.log("reading player id: ", localStorage.getItem('playerID'));
     try {
         const response = await fetch(api_url + '/consensus', {
             method: 'POST',

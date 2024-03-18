@@ -115,7 +115,7 @@ try {
     localStorage.clear();
     setLocalStorage("game_obj", JSON.stringify(data));
     setLocalStorage("gamecode", gameCode);
-    setLocalStorage("PlayerID", data.white.id);
+    setLocalStorage("playerID", data.white.id);
     setLocalStorage("color", "white");
     window.location.href = "white.html";
 } catch (error) {

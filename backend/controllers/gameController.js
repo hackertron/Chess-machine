@@ -193,14 +193,16 @@ export const sendConsensus = async(req, res) => {
         }
         // check playerid is white or whiteAssist and then set it's move to boardId
         if (playerid === game.white.id) {
+            console.log("setting white!!!  : ", playerid);
             game.white.moves = boardId;
         } else if (playerid === game.whiteAssist.id) {
+            console.log("setting whiteAssist!!!  : ", playerid);
             game.whiteAssist.moves = boardId;
         }
         console.log("white moves : ", game.white.moves);
         console.log("whiteAssist moves : ", game.whiteAssist.moves);
         // set consensus
-        if(game.white.moves === game.whiteAssist.moves){
+        if(game.white.moves === game.whiteAssist.moves && game.white.moves !== "" && game.whiteAssist.moves !== "") {
             game.consensus = true;
         }
         if(game.consensus) {
