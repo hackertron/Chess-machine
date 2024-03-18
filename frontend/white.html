@@ -11,37 +11,39 @@
 <body>
     <div id="board1" style="width: 400px"></div>
     <label>Status:</label>
-    <div id="status"></div>
-    <label>FEN:</label>
-    <div id="fen"></div>
-    <label>PGN:</label>
-    <div id="pgn"></div>
+    <div id="status-board1"></div>
     <label>PlayerID:</label>
-    <div id ="playerID"></div>
-    <div id = "container">
+    <div id="playerID1"></div>
+    <!-- <div id = "container">
       <button id = "submitMove" class="button">Submit Move</button>
+    </div> -->
+    <div id="consensusbox">
+      <button id="consensus-board2" class="button">Board1 is better</button>
+      <button id="consensus-board3" class="button">Board2 is better</button>
     </div>
-    <div id = "consensusbox">
-      <button id = "consensus-board2" class="button">Agree on Board1</button>
-      <button id = "consensus-board3" class="button">Agree on Board2</button>
-    </div>
-    <div id ="whiteBoards">
+    <div id="whiteBoards">
       <div>
         <div id="board2" style="width: 400px;"></div>
-        <button id ="board2-submit" class="button">Submit Move</button>
+        <label>Status:</label>
+        <div id="status-board2"></div>
+        <label>PlayerID:</label>
+        <div id="playerID2"></div>
+        <button id="board2-submit" class="button">Submit Move</button>
       </div>
       <div>
         <div id="board3" style="width: 400px;"></div>
-        <button id ="board3-submit" class="button">Submit Move</button>
+        <label>Status:</label>
+        <div id="status-board3"></div>
+        <label>PlayerID:</label>
+        <div id="playerID3"></div>
+        <button id="board3-submit" class="button">Submit Move</button>
       </div>
-      
     </div>
 
-<script src="https://chessboardjs.com/js/chess-0.10.2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD" crossorigin="anonymous"></script>
-<script type= "module" src="gamelogic.js"></script>
-<script type= "module" src="white.js"></script>
-
+    <script src="https://chessboardjs.com/js/chess-0.10.2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD" crossorigin="anonymous"></script>
+    <script type="module" src="gamelogic.js"></script>
+    <script type="module" src="white.js"></script>
 </body>
 </html>

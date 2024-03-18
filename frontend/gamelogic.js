@@ -1,8 +1,8 @@
 import { api_url } from "./baseurl.js";
 
-let $status = $('#status');
-let $fen = $('#fen');
-let $pgn = $('#pgn');
+// let $status = $('#status');
+// let $fen = $('#fen');
+// let $pgn = $('#pgn');
 export let boardObjects = {};
 
 export async function getGame() {
@@ -89,9 +89,9 @@ export function updateStatus(game, boardId) {
     }
   }
 
-  $status.html(status);
-  $fen.html(game.fen());
-  $pgn.html(game.pgn());
+  document.getElementById(`status-${boardId}`).innerHTML = status;
+  // $fen.html(game.fen());
+  // $pgn.html(game.pgn());
 }
 
 export function create_config(game, boardId, board_pos, orientation) {
@@ -150,8 +150,8 @@ export function updateGamePage(gameData, game_obj, boardId) {
   updateStatus(game_obj, boardId);
   localStorage.setItem("game_obj", JSON.stringify(game_obj));
   console.log("updateGamepage : ", game_obj);
-  if(orientation == "white"){
-    suggestionTextupdate(game_obj.white.moves, game_obj.whiteAssist.moves);
-  }
+  // if(orientation == "white"){
+  //   suggestionTextupdate(game_obj.white.moves, game_obj.whiteAssist.moves);
+  // }
 }
 
