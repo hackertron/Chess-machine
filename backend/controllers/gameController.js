@@ -186,6 +186,7 @@ export const sendConsensus = async(req, res) => {
     console.log("gamecode : ", gamecode);
     console.log("boardId : ", boardId);
     let emitResults = false;
+    let msg = null;
     try {
         const game = await Game.findOne({"gamecode": gamecode});
         if (!game) {
