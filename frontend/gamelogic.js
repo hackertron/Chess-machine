@@ -150,8 +150,6 @@ export function updateGamePage(gameData, game_obj, boardId) {
   updateStatus(game_obj, boardId);
   localStorage.setItem("game_obj", JSON.stringify(game_obj));
   console.log("updateGamepage : ", game_obj);
-  // if(orientation == "white"){
-  //   suggestionTextupdate(game_obj.white.moves, game_obj.whiteAssist.moves);
-  // }
+  console.log("game data : ", gameData);
 }
 

@@ -34,7 +34,7 @@ async function suggestmove(playerid, boardId, game_fen, gamecode) {
             throw new Error('Failed to suggest move');
         }
         const data = await response.json();
-        console.log('Success:', data);
+        console.log('Success suggest move:', data);
     } catch (error) {
         console.error('Error:', error);
     }
@@ -59,7 +59,10 @@ async function sendConsensus(boardId) {
             throw new Error('Failed to send consensus');
         }
         const data = await response.json();
-        console.log('Success:', data);
+        console.log('Success send consensus :', data);
+        // update the msg
+        let msg = `<p>White agreed on ${data.white.moves} \n and White Assist agreed on ${data.whiteAssist.moves}</p>`; 
+        document.getElementById("msg").innerHTML = msg;
     } catch (error) {
         console.error('Error:', error);
     }
