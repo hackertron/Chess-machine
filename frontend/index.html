@@ -10,12 +10,22 @@
     <div id = "container">
         <input type = "text" id = "gameCode">Enter Game Code</input>
         <button id = "start" class="button">Start Game</button>
+        <button id = "joinWhiteAssist" class="button" style="background-color: whitesmoke; color: #000;">Join Game a White assist</button>
         <button id = "joinBlack" class="button">Join Game as Black</button>
-        <button id = "joinWhiteAssist" class="button">Join Game a White assist</button>
+        
     </div>
+    <hr>
+
     <div id = "container">
-        <input type="text" id="continueGameCode">GameCode</input>
-        <input type="text" id="playerID">PlayerID</input>
+        <p>Want to continue old game, enter your gamecode and playerID here </p>
+        <span>
+            <label>Enter Game Code: </label>
+            <input type="text" id="continueGameCode"></input>
+        </span>
+        <span>
+            <label>Enter PlayerID: </label>
+            <input type="text" id="playerID"></input>
+        </span>
         <button id = "continueGame" class="button">Continue Game</button>
     </div>
 </body>
