@@ -58,3 +58,9 @@ body {
 .button:hover {
     background-color: #333; /* Change background color on hover */
 }
+
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: justify;
+  }

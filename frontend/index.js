@@ -107,7 +107,11 @@ try {
     });
 
     if (!response.ok) {
+        if(response.status == 409) {
+            alert("Game Code Already Exists. Try a new different game code");
+        }
         throw new Error('Failed to create game');
+        
     }
 
     const data = await response.json();
