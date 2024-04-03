@@ -1,7 +1,7 @@
 // black.js
 
 import { api_url } from "./baseurl.js";
-import { initializeBoard, updateStatus } from "./gamelogic.js";
+import { initializeBoard, updateStatus, getGame } from "./gamelogic.js";
 
 // Define black-specific logic here
 
@@ -9,14 +9,13 @@ import { initializeBoard, updateStatus } from "./gamelogic.js";
 const games = [null];
 
 // Define a single board variable for black
-let board = null;
+let boards = [null];
 
 // Event listeners and other black-specific logic
 document.addEventListener('DOMContentLoaded', async function() {
     // Initialize black board
-    let game_data = localStorage.getItem("game_obj");
+    let game_data = await getGame();
     if(game_data) {
-        game_data = JSON.parse(game_data);
         initializeBlackBoard(game_data.fen);
     }
     
@@ -30,6 +29,7 @@ function initializeBlackBoard(board_pos="start") {
     const { game, board } = initializeBoard('board' + (i + 1), board_pos, "black");
     // Store game and board references
     games[i] = game;
+    boards[i] = board;
     updateStatus(games[i], 'board' + (i + 1)); // Update status for the initial game state
   }
 }

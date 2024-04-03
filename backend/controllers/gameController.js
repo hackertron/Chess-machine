@@ -1,6 +1,7 @@
 import {Game, ConsensusGames} from '../models/games.js'
 import {v4 as uuidv4} from 'uuid';
 import { EventEmitter } from 'events';
+import { getRandomPuzzle } from './puzzle.js';
 
 const emitter = new EventEmitter();
 
@@ -42,11 +43,12 @@ export const createGame = async (req, res) => {
     const gamecode = req.body.gameCode;
     
     const whiteString = uuidv4(); // Generate a random string for the white player
+    const puzzle = getRandomPuzzle();
     const game = new Game({
         gamecode,
         gamestatus: "waiting",
         pgn: "",
-        fen: "start",
+        fen: puzzle.FEN,
         white: { id: whiteString, moves: "" }, // Update to use nested object for white
     });
     try {
@@ -186,7 +188,6 @@ export const sendConsensus = async(req, res) => {
     console.log("gamecode : ", gamecode);
     console.log("boardId : ", boardId);
     let emitResults = false;
-    let msg = null;
     try {
         const game = await Game.findOne({"gamecode": gamecode});
         if (!game) {
@@ -214,9 +215,8 @@ export const sendConsensus = async(req, res) => {
             game.consensus = false;
             game.white.moves = "";
             game.whiteAssist.moves = "";
-            // reset the move
-            // consensusGame.move = "";
-            await consensusGame.save();
+            // delete consensusGame with gamecode all boards
+            await ConsensusGames.deleteMany({"gamecode": gamecode});
         }
         const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
         if(emitResults) {

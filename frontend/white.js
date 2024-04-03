@@ -103,9 +103,8 @@ eventSource.onmessage = function (event) {
 // Event listeners and other white-specific logic
 document.addEventListener('DOMContentLoaded', async function () {
     // get game data
-    let game_data = localStorage.getItem("game_obj");
+    let game_data = await getGame();
     if (game_data) {
-        game_data = JSON.parse(game_data);
         initializeWhiteBoards(game_data.fen);
     }
 
