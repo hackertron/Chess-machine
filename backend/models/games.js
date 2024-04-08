@@ -21,9 +21,9 @@ const gameSchema = new mongoose.Schema({
         default: ""
     },
     white: {
-        id: {
+        username: {
             type: String,
-            default: ""
+            default: "",
         },
         moves: {
             type: String,
@@ -31,9 +31,9 @@ const gameSchema = new mongoose.Schema({
         }
     },
     black: {
-        id: {
+        username: {
             type: String,
-            default: ""
+            default: "",
         },
         moves: {
             type: String,
@@ -41,9 +41,9 @@ const gameSchema = new mongoose.Schema({
         }
     },
     whiteAssist: {
-        id: {
+        username: {
             type: String,
-            default: ""
+            default: "",
         },
         moves: {
             type: String,

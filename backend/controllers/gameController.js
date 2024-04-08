@@ -1,5 +1,4 @@
 import {Game, ConsensusGames} from '../models/games.js'
-import {v4 as uuidv4} from 'uuid';
 import { EventEmitter } from 'events';
 import { getRandomPuzzle } from './puzzle.js';
 
@@ -41,15 +40,15 @@ export const gameUpdatesStream = async (req, res) => {
 
 export const createGame = async (req, res) => {
     const gamecode = req.body.gameCode;
+    const username = req.body.username;
     
-    const whiteString = uuidv4(); // Generate a random string for the white player
     const puzzle = getRandomPuzzle();
     const game = new Game({
         gamecode,
         gamestatus: "waiting",
         pgn: "",
         fen: puzzle.FEN,
-        white: { id: whiteString, moves: "" }, // Update to use nested object for white
+        white: { username: username, moves: "" },
     });
     try {
         const newGame = await game.save();
@@ -72,6 +71,7 @@ export const gameExists = async(req, res) => {
 export const joinGame = async (req, res) => {
     const gamecode = req.body.gameCode;
     const color = req.body.color;
+    const username = req.body.username;
    
     try {
         const game = await Game.findOne({ gamecode });
@@ -80,12 +80,12 @@ export const joinGame = async (req, res) => {
             const canJoin =
                 game.gamestatus === "waiting" ||
                 (game.gamestatus === "inprogress" &&
-                    (game.black.id === "" || game.whiteAssist.id === ""));
+                    (game.black.username === "" || game.whiteAssist.username === ""));
             const colorProperty = color === "black" ? "black" : "whiteAssist";
    
             if (canJoin) {
                 game.gamestatus = "inprogress";
-                game[colorProperty] = { id: uuidv4(), moves: "" }; // Assign UUID to the specified color property
+                game[colorProperty] = { username: username, moves: "" };
    
                 const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
                 res.status(200).json(updatedGame);
@@ -162,7 +162,7 @@ export const suggestMoves = async(req, res) => {
 
 
 export const continueGame = async(req, res) => {
-    const playerID = req.body.playerID;
+    const username = req.body.username;
     const gamecode = req.body.gameCode;
     
     try {
@@ -170,7 +170,7 @@ export const continueGame = async(req, res) => {
         if (!game) {
             return res.status(404).json({message: "Game not found"});
         }
-        if (game.black.id !== playerID && game.whiteAssist.id !== playerID && game.white.id !== playerID) {
+        if (game.black.username !== username && game.whiteAssist.username !== username && game.white.username !== username) {
             return res.status(404).json({message: "Player not in game"});
         }
         // Emit game update event
@@ -183,8 +183,8 @@ export const continueGame = async(req, res) => {
 
 
 export const sendConsensus = async(req, res) => {
-    const {playerid, gamecode, boardId} = req.body;
-    console.log("playerid : ", playerid);
+    const {username, gamecode, boardId} = req.body;
+    console.log("username : ", username);
     console.log("gamecode : ", gamecode);
     console.log("boardId : ", boardId);
     let emitResults = false;
@@ -193,12 +193,12 @@ export const sendConsensus = async(req, res) => {
         if (!game) {
             return res.status(404).json({message: "Game not found"});
         }
-        // check playerid is white or whiteAssist and then set it's move to boardId
-        if (playerid === game.white.id) {
-            console.log("setting white!!!  : ", playerid);
+        // check username is white or whiteAssist and then set it's move to boardId
+        if (username === game.white.username) {
+            console.log("setting white!!!  : ", username);
             game.white.moves = boardId;
-        } else if (playerid === game.whiteAssist.id) {
-            console.log("setting whiteAssist!!!  : ", playerid);
+        } else if (username === game.whiteAssist.username) {
+            console.log("setting whiteAssist!!!  : ", username);
             game.whiteAssist.moves = boardId;
         }
         console.log("white moves : ", game.white.moves);

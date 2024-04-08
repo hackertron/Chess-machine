@@ -15,8 +15,8 @@ let boards = [
     null
 ];
 
-async function suggestmove(playerid, boardId, game_fen, gamecode) {
-    console.log("suggest move : ", playerid, boardId, game_fen, gamecode);
+async function suggestmove(username, boardId, game_fen, gamecode) {
+    console.log("suggest move : ", username, boardId, game_fen, gamecode);
     try {
         const response = await fetch(api_url + '/suggestmoves', {
             method: 'POST',
@@ -41,7 +41,7 @@ async function suggestmove(playerid, boardId, game_fen, gamecode) {
 }
 
 async function sendConsensus(boardId) {
-    console.log("reading player id: ", localStorage.getItem('playerID'));
+    console.log("reading username : ", localStorage.getItem('username'));
     try {
         const response = await fetch(api_url + '/consensus', {
             method: 'POST',
@@ -50,7 +50,7 @@ async function sendConsensus(boardId) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                playerid: localStorage.getItem('playerID'),
+                username: localStorage.getItem('username'),
                 gamecode: localStorage.getItem('gamecode'),
                 boardId: boardId
             })
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (submitButton) {
             submitButton.addEventListener("click", () => {
                 console.log("board and game : ", boardObjects[`board${i + 1}`], games[i].fen());
-                suggestmove(localStorage.getItem("playerID"), `board${i + 1}`, games[i].fen(), localStorage.getItem("gamecode"));
+                suggestmove(localStorage.getItem("username"), `board${i + 1}`, games[i].fen(), localStorage.getItem("gamecode"));
 
             })
         }
