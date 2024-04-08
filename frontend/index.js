@@ -3,9 +3,9 @@ function setLocalStorage(key, data) {
     localStorage.setItem(key, data);
 }
 
-async function contineuGame(continueGameCode, playerID) {
+async function contineuGame(continueGameCode, ContinueGameUsername) {
     console.log("continueGameCode : ", continueGameCode);
-    console.log("playerID : ", playerID);
+    console.log("ContinueGameUsername : ", ContinueGameUsername);
     try {
         const response = await fetch(api_url + '/continue', {
             method: 'POST',
@@ -15,7 +15,7 @@ async function contineuGame(continueGameCode, playerID) {
             },
             body: JSON.stringify({
                 gameCode: continueGameCode,
-                playerID: playerID
+                username: ContinueGameUsername
             })
         });
         if (!response.ok) {
@@ -26,16 +26,16 @@ async function contineuGame(continueGameCode, playerID) {
         localStorage.clear();
         setLocalStorage("game_obj", JSON.stringify(data));
         setLocalStorage("gamecode", continueGameCode);
-        setLocalStorage("playerID", playerID);
+        setLocalStorage("username", ContinueGameUsername);
 
         // check where to redirect based on playerID
-        if (data.black.id === playerID) {
+        if (data.black.username === ContinueGameUsername) {
             setLocalStorage("color", "black");
             window.location.href = "black.html";
-        } else if (data.whiteAssist.id === playerID) {
+        } else if (data.whiteAssist.username === ContinueGameUsername) {
             setLocalStorage("color", "whiteAssist");
             window.location.href = "white.html";
-        } else if (data.white.id === playerID) {
+        } else if (data.white.username === ContinueGameUsername) {
             setLocalStorage("color", "white");
             window.location.href = "white.html";
         }
@@ -45,7 +45,7 @@ async function contineuGame(continueGameCode, playerID) {
     }
 }
 
-async function joinGame(gameCode, color) {
+async function joinGame(gameCode, color, username) {
     console.log("color : ", color);
     try {
         const response = await fetch(api_url + '/join', {
@@ -56,7 +56,8 @@ async function joinGame(gameCode, color) {
             },
             body: JSON.stringify({
                 gameCode: gameCode,
-                color: color
+                color: color,
+                username: username
             })
         });
         if (!response.ok) {
@@ -67,22 +68,19 @@ async function joinGame(gameCode, color) {
         localStorage.clear();
         setLocalStorage("game_obj", JSON.stringify(data));
         setLocalStorage("gamecode", gameCode);
-        // get id of player from data object and set playerid in localstorage
+        // get id of player from data object and set username in localstorage
         if(color === "black") {
-            let playerID = data.black.id;
             setLocalStorage("color", "black");
-            setLocalStorage("playerID", playerID);
+            setLocalStorage("username", data.black.username);
         }
         else if(color === "whiteAssist") {
-            let playerID = data.whiteAssist.id;
             setLocalStorage("color", "whiteAssist");
-            setLocalStorage("playerID", playerID);
+            setLocalStorage("username", data.whiteAssist.username);
             color = "white";
         }
         else if(color === "white") {
-            let playerID = data.white.id;
             setLocalStorage("color", "white");
-            setLocalStorage("playerID", playerID);
+            setLocalStorage("username", data.white.username);
         }
         window.location.href = color + ".html";
     } catch (error) {
@@ -93,7 +91,9 @@ async function joinGame(gameCode, color) {
 
 async function createGame() {
 let gameCode = document.getElementById("gameCode").value;
+let username = document.getElementById("username").value;
 console.log("gameCode : ", gameCode);
+console.log("username : ", username);
 try {
     const response = await fetch(api_url + '/create', {
         method: 'POST',
@@ -102,7 +102,8 @@ try {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            gameCode: gameCode
+            gameCode: gameCode,
+            username: username
         })
     });
 
@@ -131,14 +132,14 @@ document.getElementById("start").addEventListener("click", () => {
     console.log("result : ", result);
 })
 document.getElementById("joinBlack").addEventListener("click", () => {
-    joinGame(document.getElementById("gameCode").value, "black")
+    joinGame(document.getElementById("gameCode").value, "black", document.getElementById("username").value)
 })
 document.getElementById("joinWhiteAssist").addEventListener("click", () => {
-    joinGame(document.getElementById("gameCode").value, "whiteAssist")
+    joinGame(document.getElementById("gameCode").value, "whiteAssist", document.getElementById("username").value)
 })
 
 
 document.getElementById("continueGame").addEventListener("click", () => {
     console.log("continue game, need gameID and playerID");
-    contineuGame(document.getElementById("continueGameCode").value, document.getElementById("playerID").value)
+    contineuGame(document.getElementById("continueGameCode").value, document.getElementById("ContinueGameUsername").value)
 })

@@ -8,7 +8,14 @@
 </head>
 <body>
     <div id = "container">
-        <input type = "text" id = "gameCode">Enter Game Code</input>
+        <span>
+            <label>Enter Game code</label>
+            <input type = "text" id = "gameCode" placeholder="e.g. chess101"></input>
+        </span>
+        <span>
+            <label>Enter username</label>
+            <input type = "text" id = "username"></input>
+        </span>
         <button id = "start" class="button">Start Game</button>
         <button id = "joinWhiteAssist" class="button" style="background-color: whitesmoke; color: #000;">Join Game a White assist</button>
         <button id = "joinBlack" class="button">Join Game as Black</button>
@@ -17,14 +24,14 @@
     <hr>
 
     <div id = "container">
-        <p>Want to continue old game, enter your gamecode and playerID here </p>
+        <p>Want to continue old game, enter your gamecode and username here </p>
         <span>
             <label>Enter Game Code: </label>
             <input type="text" id="continueGameCode"></input>
         </span>
         <span>
-            <label>Enter PlayerID: </label>
-            <input type="text" id="playerID"></input>
+            <label>Enter username: </label>
+            <input type="text" id="ContinueGameUsername"></input>
         </span>
         <button id = "continueGame" class="button">Continue Game</button>
     </div>
@@ -41,7 +48,7 @@
 
             
             * Continue Game
-            1. Enter the game code and playerID
+            1. Enter the game code and username
             2. Click Continue Game
             3. Game will be continued
         </pre>
