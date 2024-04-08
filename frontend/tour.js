@@ -215,4 +215,8 @@ const tour = new Shepherd.Tour({
   });
 
 // Initiate the tour
-tour.start()
+if(!sessionStorage.getItem('shepherd-tour')) {
+  // Start the tour
+  tour.start();
+  sessionStorage.setItem('shepherd-tour', 'yes');
+}
