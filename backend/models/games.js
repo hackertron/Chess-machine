@@ -56,7 +56,7 @@ const gameSchema = new mongoose.Schema({
     }
 });
 
-const consensusSchema  = new mongoose.Schema({
+const consensusSchema = new mongoose.Schema({
     gamecode: {
         type: String,
         required: true
@@ -65,11 +65,15 @@ const consensusSchema  = new mongoose.Schema({
         type: String,
         required: true
     },
-     fen: {
+    fen: {
         type: String,
         default: ""
     },
     move: {
+        type: String,
+        default: ""
+    },
+    lastmove: {
         type: String,
         default: ""
     }

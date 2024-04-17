@@ -1,24 +1,24 @@
-import {Game, ConsensusGames} from '../models/games.js'
-import {v4 as uuidv4} from 'uuid';
+import { Game, ConsensusGames } from '../models/games.js'
+import { v4 as uuidv4 } from 'uuid';
 import { EventEmitter } from 'events';
 import { getRandomPuzzle } from './puzzle.js';
 
 const emitter = new EventEmitter();
 
 
-export const ping = async(req, res) => {
-    res.status(200).json({message: "pong"});
+export const ping = async (req, res) => {
+    res.status(200).json({ message: "pong" });
 }
 
-export const getGame = async(req, res) => {
+export const getGame = async (req, res) => {
     //get game by gamecode
     const gamecode = req.body.gamecode;
     console.log("getGame body code : ", gamecode);
     try {
-        const game = await Game.findOne({gamecode});
+        const game = await Game.findOne({ gamecode });
         res.status(200).json(game);
     } catch (error) {
-        res.status(404).json({message: error.message});
+        res.status(404).json({ message: error.message });
     }
 }
 
@@ -41,7 +41,7 @@ export const gameUpdatesStream = async (req, res) => {
 
 export const createGame = async (req, res) => {
     const gamecode = req.body.gameCode;
-    
+
     const whiteString = uuidv4(); // Generate a random string for the white player
     const puzzle = getRandomPuzzle();
     const game = new Game({
@@ -55,38 +55,38 @@ export const createGame = async (req, res) => {
         const newGame = await game.save();
         res.status(201).json(newGame);
     } catch (error) {
-        res.status(409).json({message: error.message});
+        res.status(409).json({ message: error.message });
     }
 };
 
-export const gameExists = async(req, res) => {
+export const gameExists = async (req, res) => {
     const gamecode = req.body.gamecode;
     try {
-        const game = await Game.findOne({gamecode});
+        const game = await Game.findOne({ gamecode });
         res.status(200).json(game);
     } catch (error) {
-        res.status(404).json({message: error.message});
+        res.status(404).json({ message: error.message });
     }
 };
 
 export const joinGame = async (req, res) => {
     const gamecode = req.body.gameCode;
     const color = req.body.color;
-   
+
     try {
         const game = await Game.findOne({ gamecode });
-   
+
         if (game) {
             const canJoin =
                 game.gamestatus === "waiting" ||
                 (game.gamestatus === "inprogress" &&
                     (game.black.id === "" || game.whiteAssist.id === ""));
             const colorProperty = color === "black" ? "black" : "whiteAssist";
-   
+
             if (canJoin) {
                 game.gamestatus = "inprogress";
                 game[colorProperty] = { id: uuidv4(), moves: "" }; // Assign UUID to the specified color property
-   
+
                 const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
                 res.status(200).json(updatedGame);
             } else {
@@ -101,10 +101,10 @@ export const joinGame = async (req, res) => {
 };
 
 export const updatedGame = async (req, res) => {
-    const {gamecode, pgn, fen } = req.body;
+    const { gamecode, pgn, fen } = req.body;
     console.log("updateGame gamecode : ", req.body.gamecode);
     try {
-        // fing game by gamecode and update
+        // find game by gamecode and update
         const game = await Game.findOne({ gamecode });
         if (!game) {
             return res.status(404).json({ message: 'Game not found' });
@@ -123,13 +123,14 @@ export const updatedGame = async (req, res) => {
 };
 
 
-export const suggestMoves = async(req, res) => {
-    const {gamecode, boardId, fen} = req.body;
+export const suggestMoves = async (req, res) => {
+    const { gamecode, boardId, fen, lastmove } = req.body;
     console.log("gamecode : ", gamecode);
     console.log("boardId : ", boardId);
     console.log("game_fen : ", fen);
+    console.log("lastmove : ", lastmove);
     try {
-        const consensusGame = await ConsensusGames.findOne({"gamecode": gamecode, "boardId": boardId});
+        const consensusGame = await ConsensusGames.findOne({ "gamecode": gamecode, "boardId": boardId });
         if (!consensusGame) {
             const move = fen;
             // create one and return
@@ -137,9 +138,11 @@ export const suggestMoves = async(req, res) => {
                 gamecode,
                 boardId,
                 fen,
-                move
+                move,
+                lastmove
             })
             await consensus.save();
+            emitter.emit('gameUpdate', consensus);
             return res.status(200).json(consensus);
         }
         // If consensus.move is empty, set it to fen
@@ -148,6 +151,8 @@ export const suggestMoves = async(req, res) => {
         }
         // set consensus
         consensusGame.fen = fen;
+        // update last played move
+        consensusGame.lastmove = lastmove;
         await consensusGame.save();
         // Emit game update event
         emitter.emit('gameUpdate', consensusGame);
@@ -156,42 +161,42 @@ export const suggestMoves = async(req, res) => {
     catch (error) {
         console.log("error: ", error.message);
         console.log("error: ", error);
-        return res.status(500).json({message: error.message});
+        return res.status(500).json({ message: error.message });
     }
 }
 
 
-export const continueGame = async(req, res) => {
+export const continueGame = async (req, res) => {
     const playerID = req.body.playerID;
     const gamecode = req.body.gameCode;
-    
+
     try {
-        const game = await Game.findOne({gamecode});
+        const game = await Game.findOne({ gamecode });
         if (!game) {
-            return res.status(404).json({message: "Game not found"});
+            return res.status(404).json({ message: "Game not found" });
         }
         if (game.black.id !== playerID && game.whiteAssist.id !== playerID && game.white.id !== playerID) {
-            return res.status(404).json({message: "Player not in game"});
+            return res.status(404).json({ message: "Player not in game" });
         }
         // Emit game update event
         emitter.emit('gameUpdate', game);
         return res.status(200).json(game);
     } catch (error) {
-        return res.status(404).json({message: error.message});
+        return res.status(404).json({ message: error.message });
     }
 };
 
 
-export const sendConsensus = async(req, res) => {
-    const {playerid, gamecode, boardId} = req.body;
+export const sendConsensus = async (req, res) => {
+    const { playerid, gamecode, boardId } = req.body;
     console.log("playerid : ", playerid);
     console.log("gamecode : ", gamecode);
     console.log("boardId : ", boardId);
     let emitResults = false;
     try {
-        const game = await Game.findOne({"gamecode": gamecode});
+        const game = await Game.findOne({ "gamecode": gamecode });
         if (!game) {
-            return res.status(404).json({message: "Game not found"});
+            return res.status(404).json({ message: "Game not found" });
         }
         // check playerid is white or whiteAssist and then set it's move to boardId
         if (playerid === game.white.id) {
@@ -204,22 +209,22 @@ export const sendConsensus = async(req, res) => {
         console.log("white moves : ", game.white.moves);
         console.log("whiteAssist moves : ", game.whiteAssist.moves);
         // set consensus
-        if(game.white.moves === game.whiteAssist.moves && game.white.moves !== "" && game.whiteAssist.moves !== "") {
+        if (game.white.moves === game.whiteAssist.moves && game.white.moves !== "" && game.whiteAssist.moves !== "") {
             game.consensus = true;
         }
-        if(game.consensus) {
+        if (game.consensus) {
             console.log("consensus reached");
-            const consensusGame = await ConsensusGames.findOne({"gamecode": gamecode, "boardId": boardId});
+            const consensusGame = await ConsensusGames.findOne({ "gamecode": gamecode, "boardId": boardId });
             game.fen = consensusGame.move;
             emitResults = true;
             game.consensus = false;
             game.white.moves = "";
             game.whiteAssist.moves = "";
             // delete consensusGame with gamecode all boards
-            await ConsensusGames.deleteMany({"gamecode": gamecode});
+            await ConsensusGames.deleteMany({ "gamecode": gamecode });
         }
         const updatedGame = await Game.findByIdAndUpdate(game._id, game, { new: true });
-        if(emitResults) {
+        if (emitResults) {
             // Emit game update event
             emitter.emit('gameUpdate', updatedGame);
         }
@@ -228,6 +233,6 @@ export const sendConsensus = async(req, res) => {
     catch (error) {
         console.log("error: ", error.message);
         console.log("error: ", error);
-        return res.status(500).json({message: error.message});
+        return res.status(500).json({ message: error.message });
     }
 }
